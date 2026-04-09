@@ -75,7 +75,7 @@ async def healthz():
 
 
 @app.get("/api/schema")
-async def get_schema():
+def get_schema():
     """Return the table schema so the frontend can display it."""
     if spark_manager is None:
         raise HTTPException(status_code=503, detail="Spark not initialized")
@@ -83,7 +83,7 @@ async def get_schema():
 
 
 @app.post("/api/ask", response_model=AskResponse)
-async def ask_question(request: AskRequest):
+def ask_question(request: AskRequest):
     """Accept a natural language question and return query results."""
     if query_engine is None:
         raise HTTPException(status_code=503, detail="Query engine not initialized")
@@ -95,7 +95,7 @@ async def ask_question(request: AskRequest):
 
 
 @app.get("/api/sample")
-async def get_sample():
+def get_sample():
     """Return a sample of data from the table."""
     if spark_manager is None:
         raise HTTPException(status_code=503, detail="Spark not initialized")

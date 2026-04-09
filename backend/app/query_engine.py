@@ -100,8 +100,12 @@ class QueryEngine:
             "REVOKE",
         ]
         sql_upper = sql.upper().strip()
+        # Strip SQL comments before checking
+        sql_no_comments = re.sub(r'/\*.*?\*/', ' ', sql_upper, flags=re.DOTALL)
+        sql_no_comments = re.sub(r'--[^\n]*', ' ', sql_no_comments)
+        sql_no_comments = sql_no_comments.strip()
         for keyword in forbidden:
-            if re.match(rf"^\s*{keyword}\b", sql_upper):
+            if re.match(rf"^\s*{keyword}\b", sql_no_comments):
                 raise ValueError(
                     f"Destructive SQL operation '{keyword}' is not allowed."
                 )
