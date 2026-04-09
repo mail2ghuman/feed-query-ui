@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+spark-warehouse/
+metastore_db/
+derby.log
+.env
+*.egg-info/
+dist/
+node_modules/
