@@ -105,10 +105,12 @@ class QueryEngine:
         sql_no_comments = re.sub(r'--[^\n]*', ' ', sql_no_comments)
         sql_no_comments = sql_no_comments.strip()
         for keyword in forbidden:
-            if re.match(rf"^\s*{keyword}\b", sql_no_comments):
+            if re.search(rf"\b{keyword}\b", sql_no_comments):
                 raise ValueError(
                     f"Destructive SQL operation '{keyword}' is not allowed."
                 )
+        if re.search(r';', sql_no_comments):
+            raise ValueError("Multiple SQL statements are not allowed.")
 
     def ask(self, question: str) -> dict:
         """Process a natural language question: generate SQL, validate, execute, return results."""
