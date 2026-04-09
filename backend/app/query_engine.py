@@ -42,6 +42,7 @@ Rules:
 8. Keep queries efficient with appropriate filters and limits where sensible.
 9. SparkSQL HAVING clauses can ONLY reference columns that appear in the SELECT list or aggregate expressions. Do NOT reference raw columns that were transformed or aliased in the GROUP BY. Use a subquery or CTE if you need to filter on both aggregated and non-aggregated columns.
 10. Prefer using subqueries or CTEs (WITH clauses) over HAVING when filtering requires access to original column values after aggregation.
+11. NEVER use placeholders like <your_feed_id>, <feed_name>, {feed_id}, etc. If the user's question does not specify a particular feed or value, query ALL feeds and return the results. If the question mentions a feed by name (e.g., "BILLING_AU"), use feed_file_prefix = 'BILLING_AU'. If by number, use feed_id = that number. The query must always be directly executable without any manual substitution.
 """
 
 
