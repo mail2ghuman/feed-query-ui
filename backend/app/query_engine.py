@@ -100,11 +100,12 @@ class QueryEngine:
             "REVOKE",
         ]
         sql_upper = sql.upper().strip()
-        # Strip string literals first so they don't confuse comment/keyword detection
-        sql_clean = re.sub(r"'[^']*'", "''", sql_upper)
-        # Strip SQL comments before checking
-        sql_clean = re.sub(r'/\*.*?\*/', ' ', sql_clean, flags=re.DOTALL)
+        # Strip SQL comments before checking (must happen before string literal
+        # stripping because SQL engines parse comments before string literals)
+        sql_clean = re.sub(r'/\*.*?\*/', ' ', sql_upper, flags=re.DOTALL)
         sql_clean = re.sub(r'--[^\n]*', ' ', sql_clean)
+        # Strip string literals so keywords inside strings don't trigger false positives
+        sql_clean = re.sub(r"'[^']*'", "''", sql_clean)
         sql_clean = sql_clean.strip()
         # Must start with SELECT or WITH (defense-in-depth against non-SELECT commands)
         if not sql_clean.startswith("SELECT") and not sql_clean.startswith("WITH"):
