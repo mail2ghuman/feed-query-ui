@@ -100,18 +100,23 @@ class QueryEngine:
             "REVOKE",
         ]
         sql_upper = sql.upper().strip()
+        # Strip string literals first so they don't confuse comment/keyword detection
+        sql_clean = re.sub(r"'[^']*'", "''", sql_upper)
         # Strip SQL comments before checking
-        sql_no_comments = re.sub(r'/\*.*?\*/', ' ', sql_upper, flags=re.DOTALL)
-        sql_no_comments = re.sub(r'--[^\n]*', ' ', sql_no_comments)
-        sql_no_comments = sql_no_comments.strip()
+        sql_clean = re.sub(r'/\*.*?\*/', ' ', sql_clean, flags=re.DOTALL)
+        sql_clean = re.sub(r'--[^\n]*', ' ', sql_clean)
+        sql_clean = sql_clean.strip()
+        # Must start with SELECT or WITH (defense-in-depth against non-SELECT commands)
+        if not sql_clean.startswith("SELECT") and not sql_clean.startswith("WITH"):
+            raise ValueError("Only SELECT queries are allowed.")
         for keyword in forbidden:
-            if re.search(rf"\b{keyword}\b", sql_no_comments):
+            if re.search(rf"\b{keyword}\b", sql_clean):
                 raise ValueError(
                     f"Destructive SQL operation '{keyword}' is not allowed."
                 )
         # Strip trailing semicolons (LLMs commonly add them), then reject multi-statement SQL
-        sql_no_comments = sql_no_comments.rstrip(';').strip()
-        if ';' in sql_no_comments:
+        sql_clean = sql_clean.rstrip(';').strip()
+        if ';' in sql_clean:
             raise ValueError("Multiple SQL statements are not allowed.")
 
     def ask(self, question: str) -> dict:
