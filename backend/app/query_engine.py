@@ -86,6 +86,49 @@ class QueryEngine:
         return sql
 
     @staticmethod
+    def _strip_sql_strings_and_comments(sql: str) -> str:
+        """Single-pass tokenizer that strips string literals and comments from SQL.
+
+        Processes the SQL left-to-right, correctly handling the interaction
+        between string literals, block comments, and line comments. Returns
+        only the structural SQL with string contents replaced by empty strings.
+        """
+        result = []
+        i = 0
+        length = len(sql)
+        while i < length:
+            # Block comment: /* ... */
+            if sql[i:i + 2] == "/*":
+                end = sql.find("*/", i + 2)
+                if end == -1:
+                    break  # unclosed block comment, skip rest
+                i = end + 2
+                result.append(" ")
+            # Line comment: -- ...
+            elif sql[i:i + 2] == "--":
+                end = sql.find("\n", i + 2)
+                if end == -1:
+                    break  # rest of string is a comment
+                i = end + 1
+                result.append(" ")
+            # String literal: '...' (with '' as escaped quote)
+            elif sql[i] == "'":
+                i += 1
+                while i < length:
+                    if sql[i] == "'" and i + 1 < length and sql[i + 1] == "'":
+                        i += 2  # skip escaped quote ''
+                    elif sql[i] == "'":
+                        i += 1
+                        break
+                    else:
+                        i += 1
+                result.append("''")  # replace string content with empty string
+            else:
+                result.append(sql[i])
+                i += 1
+        return "".join(result)
+
+    @staticmethod
     def _validate_sql(sql: str) -> None:
         """Basic validation to prevent destructive queries."""
         forbidden = [
@@ -99,14 +142,9 @@ class QueryEngine:
             "GRANT",
             "REVOKE",
         ]
-        sql_upper = sql.upper().strip()
-        # Strip SQL comments before checking (must happen before string literal
-        # stripping because SQL engines parse comments before string literals)
-        sql_clean = re.sub(r'/\*.*?\*/', ' ', sql_upper, flags=re.DOTALL)
-        sql_clean = re.sub(r'--[^\n]*', ' ', sql_clean)
-        # Strip string literals so keywords inside strings don't trigger false positives
-        sql_clean = re.sub(r"'[^']*'", "''", sql_clean)
-        sql_clean = sql_clean.strip()
+        sql_clean = QueryEngine._strip_sql_strings_and_comments(
+            sql.upper().strip()
+        ).strip()
         # Must start with SELECT or WITH (defense-in-depth against non-SELECT commands)
         if not sql_clean.startswith("SELECT") and not sql_clean.startswith("WITH"):
             raise ValueError("Only SELECT queries are allowed.")
@@ -116,8 +154,8 @@ class QueryEngine:
                     f"Destructive SQL operation '{keyword}' is not allowed."
                 )
         # Strip trailing semicolons (LLMs commonly add them), then reject multi-statement SQL
-        sql_clean = sql_clean.rstrip(';').strip()
-        if ';' in sql_clean:
+        sql_clean = sql_clean.rstrip(";").strip()
+        if ";" in sql_clean:
             raise ValueError("Multiple SQL statements are not allowed.")
 
     def ask(self, question: str) -> dict:
