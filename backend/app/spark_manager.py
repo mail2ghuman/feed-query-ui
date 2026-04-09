@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import logging
 import os
+from typing import Optional
+
 from pyspark.sql import SparkSession
 
 logger = logging.getLogger(__name__)
@@ -10,7 +14,7 @@ class SparkManager:
 
     def __init__(self, csv_path: str):
         self.csv_path = csv_path
-        self.spark: SparkSession | None = None
+        self.spark: Optional[SparkSession] = None
         self.table_name = "billing_feed_data"
 
     def initialize(self):

@@ -6,7 +6,7 @@ authors = ["Devin AI <158243242+devin-ai-integration[bot]@users.noreply.github.c
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.9"
 fastapi = {extras = ["standard"], version = "^0.135.3"}
 openai = "^2.31.0"
 pyspark = "^4.1.1"

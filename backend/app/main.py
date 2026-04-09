@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import os
 import logging
 from contextlib import asynccontextmanager
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,8 +15,8 @@ from app.query_engine import QueryEngine
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-spark_manager: SparkManager | None = None
-query_engine: QueryEngine | None = None
+spark_manager: Optional[SparkManager] = None
+query_engine: Optional[QueryEngine] = None
 
 
 @asynccontextmanager
@@ -63,7 +66,7 @@ class AskResponse(BaseModel):
     columns: list[str]
     rows: list[dict]
     row_count: int
-    error: str | None = None
+    error: Optional[str] = None
 
 
 @app.get("/healthz")
