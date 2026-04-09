@@ -40,6 +40,8 @@ Rules:
 6. When asked about monthly volumes, group by year-month using DATE_FORMAT(billing_date, 'yyyy-MM').
 7. When filtering for ACTIVE feeds, use version_status = 'ACTIVE'.
 8. Keep queries efficient with appropriate filters and limits where sensible.
+9. SparkSQL HAVING clauses can ONLY reference columns that appear in the SELECT list or aggregate expressions. Do NOT reference raw columns that were transformed or aliased in the GROUP BY. Use a subquery or CTE if you need to filter on both aggregated and non-aggregated columns.
+10. Prefer using subqueries or CTEs (WITH clauses) over HAVING when filtering requires access to original column values after aggregation.
 """
 
 
