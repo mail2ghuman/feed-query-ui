@@ -59,34 +59,76 @@ class QueryEngine:
         self.openai_model = openai_model
         self.client = OpenAI(api_key=openai_api_key) if openai_api_key else None
 
+    _PLACEHOLDER_RE = re.compile(r"<[a-zA-Z_]+>|\{[a-zA-Z_]+\}")
+    _MAX_RETRIES = 2
+
+    @staticmethod
+    def _clean_sql_response(sql: str) -> str:
+        """Remove markdown code blocks and whitespace from LLM response."""
+        sql = sql.strip()
+        sql = re.sub(r"^```(?:sql)?\s*", "", sql)
+        sql = re.sub(r"\s*```$", "", sql)
+        return sql.strip()
+
     def _generate_sql(self, question: str) -> str:
-        """Use OpenAI to convert a natural language question to SQL."""
+        """Use OpenAI to convert a natural language question to SQL.
+
+        Detects placeholder tokens (e.g. <your_feed_id>) in the generated SQL
+        and retries with explicit correction feedback.
+        """
         if self.client is None:
             raise RuntimeError(
                 "OpenAI API key not configured. Set the OPENAI_API_KEY environment variable."
             )
 
-        response = self.client.chat.completions.create(
-            model=self.openai_model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": question},
-            ],
-            temperature=0,
-            max_tokens=500,
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": question},
+        ]
+
+        for attempt in range(self._MAX_RETRIES + 1):
+            response = self.client.chat.completions.create(
+                model=self.openai_model,
+                messages=messages,
+                temperature=0,
+                max_tokens=500,
+            )
+
+            sql = response.choices[0].message.content
+            if sql is None:
+                raise RuntimeError("OpenAI returned empty response")
+
+            sql = self._clean_sql_response(sql)
+
+            # Check for placeholder tokens
+            placeholders = self._PLACEHOLDER_RE.findall(sql)
+            if not placeholders:
+                return sql
+
+            if attempt < self._MAX_RETRIES:
+                logger.warning(
+                    "Attempt %d: LLM produced placeholders %s, retrying",
+                    attempt + 1,
+                    placeholders,
+                )
+                messages.append({"role": "assistant", "content": sql})
+                messages.append({
+                    "role": "user",
+                    "content": (
+                        f"Your SQL contains placeholder tokens {placeholders} which are not valid SQL. "
+                        "Replace them with actual values from the data. If the user did not specify "
+                        "a particular feed, remove the WHERE clause and query all feeds. "
+                        "Output only the corrected SQL query."
+                    ),
+                })
+
+        # All retries exhausted — still has placeholders
+        raise ValueError(
+            f"Could not generate executable SQL. The query contains placeholder "
+            f"values {placeholders} that need to be replaced with actual feed IDs "
+            f"or names. Please rephrase your question and specify which feed you "
+            f"mean (e.g., 'feed 4001' or 'BILLING_AU'), or ask about all feeds."
         )
-
-        sql = response.choices[0].message.content
-        if sql is None:
-            raise RuntimeError("OpenAI returned empty response")
-
-        # Clean up: remove markdown code blocks if present
-        sql = sql.strip()
-        sql = re.sub(r"^```(?:sql)?\s*", "", sql)
-        sql = re.sub(r"\s*```$", "", sql)
-        sql = sql.strip()
-
-        return sql
 
     @staticmethod
     def _strip_sql_strings_and_comments(sql: str) -> str:
