@@ -109,7 +109,9 @@ class QueryEngine:
                 raise ValueError(
                     f"Destructive SQL operation '{keyword}' is not allowed."
                 )
-        if re.search(r';', sql_no_comments):
+        # Strip trailing semicolons (LLMs commonly add them), then reject multi-statement SQL
+        sql_no_comments = sql_no_comments.rstrip(';').strip()
+        if ';' in sql_no_comments:
             raise ValueError("Multiple SQL statements are not allowed.")
 
     def ask(self, question: str) -> dict:
