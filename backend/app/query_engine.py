@@ -13,23 +13,34 @@ You have access to ONE table called `billing_feed_data` with the following schem
 
 | Column | Type | Description |
 |--------|------|-------------|
-| feed_id | int | Unique identifier for the feed |
-| billing_date | date | The billing/processing date |
+| feed_id | int | Unique identifier for the feed (4001-4050) |
+| billing_date | date | The billing/processing date (2025-01-01 to 2025-12-31) |
 | source_count | int | Number of source records |
 | target_count | int | Number of target records |
 | file_count | int | Number of files generated |
-| update_dt | timestamp | When the record was last updated |
-| version | int | Version number of the feed run |
+| ingestion_time | timestamp | When the data was first ingested into the pipeline |
+| processing_delay_min | int | Minutes between ingestion and completion (high values indicate slow/stuck pipelines) |
+| update_dt | timestamp | When the record was last updated (completion time) |
+| sla_breach | boolean | True if the feed breached its SLA for that day |
+| version | int | Version number of the feed run (1 = first attempt, 2+ = retries) |
 | version_type | string | Type of version: FULL or INCR (incremental) |
-| version_status | string | Status: ACTIVE or INACTIVE |
-| feed_file_prefix | string | Prefix identifying the feed (e.g., BILLING_AU, BILLING_US) |
+| version_status | string | Status: ACTIVE (current valid version) or INACTIVE (superseded/failed) |
+| feed_file_prefix | string | Prefix identifying the feed region (e.g., BILLING_AU = Australia, BILLING_US = United States) |
 
 Important context:
+- There are 50 feeds (feed_id 4001-4050) covering 50 countries/regions
 - Each feed_id + billing_date can have multiple versions (1, 2, 3, etc.)
 - The ACTIVE version_status indicates the currently valid version for that date
 - version_type can be FULL (full refresh) or INCR (incremental update)
 - feed_file_prefix identifies the feed name/region (e.g., BILLING_AU = Australia billing)
 - "today" or "current day" should use the MAX(billing_date) in the data as the reference date
+
+Scenario-specific guidance:
+- SLA breaches: Use sla_breach = true to find feeds that breached their SLA. High processing_delay_min often correlates with SLA breaches.
+- Processing delays: Use processing_delay_min to identify slow pipelines. Values over 300 minutes are unusually high.
+- Failed pipelines with retries: Multiple versions (version > 1) for the same feed_id + billing_date indicate retries. INACTIVE versions are failed/superseded attempts; the ACTIVE version is the successful one.
+- Holiday and year-end spikes: Look at source_count/target_count spikes around holidays (e.g., Dec 25, Jan 1) and month-end/year-end dates. Compare volumes to averages.
+- Global incident days: When multiple feeds have SLA breaches or high processing_delay_min on the same day, that suggests a global incident. Group by billing_date and count affected feeds.
 
 Rules:
 1. ONLY output a valid SparkSQL SELECT query. No INSERT, UPDATE, DELETE, DROP, CREATE, or ALTER.
@@ -43,6 +54,7 @@ Rules:
 9. SparkSQL HAVING clauses can ONLY reference columns that appear in the SELECT list or aggregate expressions. Do NOT reference raw columns that were transformed or aliased in the GROUP BY. Use a subquery or CTE if you need to filter on both aggregated and non-aggregated columns.
 10. Prefer using subqueries or CTEs (WITH clauses) over HAVING when filtering requires access to original column values after aggregation.
 11. NEVER use placeholders like <your_feed_id>, <feed_name>, {feed_id}, etc. If the user's question does not specify a particular feed or value, query ALL feeds and return the results. If the question mentions a feed by name (e.g., "BILLING_AU"), use feed_file_prefix = 'BILLING_AU'. If by number, use feed_id = that number. The query must always be directly executable without any manual substitution.
+12. For boolean columns (sla_breach), use sla_breach = true or sla_breach = false (not string comparisons).
 """
 
 
