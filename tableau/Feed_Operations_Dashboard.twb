@@ -148,10 +148,17 @@ END" />
             <breakdown value="auto" />
           </view>
           <mark class="Text" />
+          <encodings>
+            <text column="[billing_feed_data].[avg:Calculation_FeedHealth:qk]" />
+            <tooltip column="[billing_feed_data].[sum:source_count:qk]" />
+            <tooltip column="[billing_feed_data].[sum:target_count:qk]" />
+            <tooltip column="[billing_feed_data].[avg:processing_delay_min:qk]" />
+            <tooltip column="[billing_feed_data].[cnt:feed_id:qk]" />
+          </encodings>
         </pane>
       </panes>
       <rows></rows>
-      <cols>[billing_feed_data].[sum:source_count:qk] [billing_feed_data].[sum:target_count:qk] [billing_feed_data].[avg:processing_delay_min:qk]</cols>
+      <cols>[billing_feed_data].[avg:Calculation_FeedHealth:qk]</cols>
     </table>
   </worksheet>
   <worksheet name="Today&apos;s Feed Status">
@@ -233,7 +240,7 @@ END" />
         </pane>
       </panes>
       <rows>[billing_feed_data].[none:feed_file_prefix:nk]</rows>
-      <cols>[billing_feed_data].[sum:source_count:qk] [billing_feed_data].[sum:target_count:qk] [billing_feed_data].[avg:processing_delay_min:qk]</cols>
+      <cols>[billing_feed_data].[sum:source_count:qk]</cols>
     </table>
   </worksheet>
   <worksheet name="Weekly Trend">
