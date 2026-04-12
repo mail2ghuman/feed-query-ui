@@ -453,7 +453,7 @@ def build_datasource_xml():
         a("          <local-name>[{}]</local-name>".format(name))
         a(
             "          <parent-name>"
-            "[billing_feed_data_advanced.csv]</parent-name>"
+            "[billing_feed_data_advanced#csv]</parent-name>"
         )
         a("          <remote-alias>{}</remote-alias>".format(name))
         a("          <ordinal>{}</ordinal>".format(i))

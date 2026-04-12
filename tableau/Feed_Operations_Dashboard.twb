@@ -37,7 +37,7 @@
           <remote-name>feed_id</remote-name>
           <remote-type>20</remote-type>
           <local-name>[feed_id]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>feed_id</remote-alias>
           <ordinal>0</ordinal>
           <local-type>integer</local-type>
@@ -48,7 +48,7 @@
           <remote-name>billing_date</remote-name>
           <remote-type>7</remote-type>
           <local-name>[billing_date]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>billing_date</remote-alias>
           <ordinal>1</ordinal>
           <local-type>date</local-type>
@@ -59,7 +59,7 @@
           <remote-name>source_count</remote-name>
           <remote-type>20</remote-type>
           <local-name>[source_count]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>source_count</remote-alias>
           <ordinal>2</ordinal>
           <local-type>integer</local-type>
@@ -70,7 +70,7 @@
           <remote-name>target_count</remote-name>
           <remote-type>20</remote-type>
           <local-name>[target_count]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>target_count</remote-alias>
           <ordinal>3</ordinal>
           <local-type>integer</local-type>
@@ -81,7 +81,7 @@
           <remote-name>file_count</remote-name>
           <remote-type>20</remote-type>
           <local-name>[file_count]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>file_count</remote-alias>
           <ordinal>4</ordinal>
           <local-type>integer</local-type>
@@ -92,7 +92,7 @@
           <remote-name>ingestion_time</remote-name>
           <remote-type>135</remote-type>
           <local-name>[ingestion_time]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>ingestion_time</remote-alias>
           <ordinal>5</ordinal>
           <local-type>datetime</local-type>
@@ -103,7 +103,7 @@
           <remote-name>processing_delay_min</remote-name>
           <remote-type>20</remote-type>
           <local-name>[processing_delay_min]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>processing_delay_min</remote-alias>
           <ordinal>6</ordinal>
           <local-type>integer</local-type>
@@ -114,7 +114,7 @@
           <remote-name>update_dt</remote-name>
           <remote-type>135</remote-type>
           <local-name>[update_dt]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>update_dt</remote-alias>
           <ordinal>7</ordinal>
           <local-type>datetime</local-type>
@@ -125,7 +125,7 @@
           <remote-name>sla_breach</remote-name>
           <remote-type>130</remote-type>
           <local-name>[sla_breach]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>sla_breach</remote-alias>
           <ordinal>8</ordinal>
           <local-type>string</local-type>
@@ -136,7 +136,7 @@
           <remote-name>version</remote-name>
           <remote-type>20</remote-type>
           <local-name>[version]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>version</remote-alias>
           <ordinal>9</ordinal>
           <local-type>integer</local-type>
@@ -147,7 +147,7 @@
           <remote-name>version_type</remote-name>
           <remote-type>130</remote-type>
           <local-name>[version_type]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>version_type</remote-alias>
           <ordinal>10</ordinal>
           <local-type>string</local-type>
@@ -158,7 +158,7 @@
           <remote-name>version_status</remote-name>
           <remote-type>130</remote-type>
           <local-name>[version_status]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>version_status</remote-alias>
           <ordinal>11</ordinal>
           <local-type>string</local-type>
@@ -169,7 +169,7 @@
           <remote-name>feed_file_prefix</remote-name>
           <remote-type>130</remote-type>
           <local-name>[feed_file_prefix]</local-name>
-          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
           <remote-alias>feed_file_prefix</remote-alias>
           <ordinal>12</ordinal>
           <local-type>string</local-type>
