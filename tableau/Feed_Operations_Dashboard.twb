@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<workbook source-platform="win" version="18.1" xmlns:user="http://www.tableausoftware.com/xml/user">
+<workbook original-version="18.1" source-build="0.0.0 (0000.0.0.0)" source-platform="win" version="18.1" xmlns:user="http://www.tableausoftware.com/xml/user">
   <preferences>
     <color-palette name="Health Status Colors" type="regular">
       <color>#22b14c</color>
@@ -139,10 +139,14 @@ END" />
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
         </datasource-dependencies>
+        <aggregation value="true" />
       </view>
       <style />
       <panes>
-        <pane>
+        <pane selection-relaxation-option="selection-relaxation-allow">
+          <view>
+            <breakdown value="auto" />
+          </view>
           <mark class="Text" />
         </pane>
       </panes>
@@ -208,10 +212,14 @@ END" />
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
         </datasource-dependencies>
+        <aggregation value="true" />
       </view>
       <style />
       <panes>
-        <pane>
+        <pane selection-relaxation-option="selection-relaxation-allow">
+          <view>
+            <breakdown value="auto" />
+          </view>
           <mark class="Bar" />
           <encodings>
             <color column="[billing_feed_data].[none:Calculation_HealthStatus:nk]" />
@@ -286,10 +294,14 @@ END" />
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
         </datasource-dependencies>
+        <aggregation value="true" />
       </view>
       <style />
       <panes>
-        <pane>
+        <pane selection-relaxation-option="selection-relaxation-allow">
+          <view>
+            <breakdown value="auto" />
+          </view>
           <mark class="Line" />
           <encodings>
             <color column="[billing_feed_data].[none:Calculation_HealthStatus:nk]" />
@@ -361,10 +373,14 @@ END" />
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
         </datasource-dependencies>
+        <aggregation value="true" />
       </view>
       <style />
       <panes>
-        <pane>
+        <pane selection-relaxation-option="selection-relaxation-allow">
+          <view>
+            <breakdown value="auto" />
+          </view>
           <mark class="Bar" />
           <encodings>
             <color column="[billing_feed_data].[none:Calculation_HealthStatus:nk]" />
@@ -439,10 +455,14 @@ END" />
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
         </datasource-dependencies>
+        <aggregation value="true" />
       </view>
       <style />
       <panes>
-        <pane>
+        <pane selection-relaxation-option="selection-relaxation-allow">
+          <view>
+            <breakdown value="auto" />
+          </view>
           <mark class="Square" />
           <encodings>
             <color column="[billing_feed_data].[avg:processing_delay_min:qk]" />
@@ -516,10 +536,14 @@ END" />
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
         </datasource-dependencies>
+        <aggregation value="true" />
       </view>
       <style />
       <panes>
-        <pane>
+        <pane selection-relaxation-option="selection-relaxation-allow">
+          <view>
+            <breakdown value="auto" />
+          </view>
           <mark class="Bar" />
           <encodings>
             <color column="[billing_feed_data].[none:Calculation_DelayBucket:nk]" />
@@ -538,14 +562,14 @@ END" />
   <dashboard name="Feed Operations Dashboard">
     <size maxheight="900" maxwidth="1400" minheight="900" minwidth="1400" />
     <zones>
-      <zone h="100000" id="2" type-v2="layout-basic" w="100000" x="0" y="0">
-        <zone h="5000" id="3" type-v2="title" w="100000" x="0" y="0" />
+      <zone h="100000" id="2" type="layout-basic" w="100000" x="0" y="0">
+        <zone h="5000" id="3" type="title" w="100000" x="0" y="0" />
         <zone h="12000" id="4" name="KPI Summary" w="100000" x="0" y="5000" />
-        <zone h="28000" id="5" type-v2="layout-basic" w="100000" x="0" y="17000">
+        <zone h="28000" id="5" type="layout-basic" w="100000" x="0" y="17000">
           <zone h="28000" id="6" name="Today&apos;s Feed Status" w="50000" x="0" y="0" />
           <zone h="28000" id="7" name="Weekly Trend" w="50000" x="50000" y="0" />
         </zone>
-        <zone h="28000" id="8" type-v2="layout-basic" w="100000" x="0" y="45000">
+        <zone h="28000" id="8" type="layout-basic" w="100000" x="0" y="45000">
           <zone h="28000" id="9" name="Problematic Feeds" w="50000" x="0" y="0" />
           <zone h="28000" id="10" name="SLA Breach Heatmap" w="50000" x="50000" y="0" />
         </zone>
