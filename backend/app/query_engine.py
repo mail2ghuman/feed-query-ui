@@ -82,7 +82,11 @@ class QueryEngine:
         sql = re.sub(r"\s*```$", "", sql)
         return sql.strip()
 
-    def _generate_sql(self, question: str) -> str:
+    def _generate_sql(
+        self,
+        question: str,
+        conversation_history: list[dict] | None = None,
+    ) -> str:
         """Use OpenAI to convert a natural language question to SQL.
 
         Detects placeholder tokens (e.g. <your_feed_id>) in the generated SQL
@@ -95,8 +99,14 @@ class QueryEngine:
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": question},
         ]
+
+        # Include conversation history so the LLM can handle follow-up questions
+        for entry in (conversation_history or []):
+            messages.append({"role": "user", "content": entry["question"]})
+            messages.append({"role": "assistant", "content": entry["sql"]})
+
+        messages.append({"role": "user", "content": question})
 
         for attempt in range(self._MAX_RETRIES + 1):
             response = self.client.chat.completions.create(
@@ -215,11 +225,15 @@ class QueryEngine:
         if ";" in sql_clean:
             raise ValueError("Multiple SQL statements are not allowed.")
 
-    def ask(self, question: str) -> dict:
+    def ask(
+        self,
+        question: str,
+        conversation_history: list[dict] | None = None,
+    ) -> dict:
         """Process a natural language question: generate SQL, validate, execute, return results."""
         generated_sql = ""
         try:
-            generated_sql = self._generate_sql(question)
+            generated_sql = self._generate_sql(question, conversation_history)
             logger.info("Generated SQL for '%s': %s", question, generated_sql)
 
             self._validate_sql(generated_sql)

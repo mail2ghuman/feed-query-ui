@@ -4,7 +4,7 @@ import QueryInput from "./components/QueryInput";
 import ChatMessage from "./components/ChatMessage";
 import SchemaPanel from "./components/SchemaPanel";
 import StatusBadge from "./components/StatusBadge";
-import { ChatMessage as ChatMessageType, SchemaColumn } from "./types";
+import { ChatMessage as ChatMessageType, ConversationEntry, SchemaColumn } from "./types";
 import { askQuestion, getSchema, healthCheck } from "./api";
 
 function App() {
@@ -54,8 +54,25 @@ function App() {
     setMessages((prev) => [...prev, questionMsg]);
     setIsLoading(true);
 
+    // Build conversation history from previous successful Q&A pairs
+    const history: ConversationEntry[] = [];
+    for (let i = 0; i < messages.length; i++) {
+      const msg = messages[i];
+      if (
+        msg.type === "answer" &&
+        msg.data &&
+        !msg.data.error &&
+        msg.data.generated_sql
+      ) {
+        history.push({
+          question: msg.data.question,
+          sql: msg.data.generated_sql,
+        });
+      }
+    }
+
     try {
-      const result = await askQuestion(question);
+      const result = await askQuestion(question, history);
       const answerMsg: ChatMessageType = {
         id: crypto.randomUUID(),
         type: "answer",

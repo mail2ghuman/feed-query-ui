@@ -17,6 +17,11 @@ export interface SchemaResponse {
   columns: SchemaColumn[];
 }
 
+export interface ConversationEntry {
+  question: string;
+  sql: string;
+}
+
 export interface ChatMessage {
   id: string;
   type: "question" | "answer";
