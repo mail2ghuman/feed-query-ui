@@ -1,8 +1,8 @@
 """
 Generate a Tableau workbook (.twbx) for the Billing Feed Operations Dashboard.
 
-This script creates a complete Tableau workbook validated against the official
-Tableau 2026.1 XSD schema (twb_2026.1.0.xsd), with:
+This script creates a complete Tableau workbook using version 18.1 format
+(compatible with all recent Tableau Public Desktop versions), with:
 - Data source connected to billing_feed_data_advanced.csv
 - Calculated fields for health status, country extraction, SLA analysis
 - 6 worksheets: KPI Summary, Today's Status, Weekly Trend, Problematic Feeds,
@@ -305,7 +305,7 @@ WORKSHEETS = [
 
 
 # ===================================================================
-# XML builders - all follow the official Tableau 2026.1 XSD ordering
+# XML builders - version 18.1 format (proven compatible)
 # ===================================================================
 
 
@@ -320,7 +320,7 @@ def build_datasource_xml():
 
     a(
         '  <datasource caption="{}" inline="true"'
-        ' name="{}" version="26.1">'.format(_esc(DS_CAPTION), DS_NAME)
+        ' name="{}" version="18.1">'.format(_esc(DS_CAPTION), DS_NAME)
     )
 
     # -- connection --
@@ -411,19 +411,11 @@ def build_datasource_deps_xml(indent=8):
     return "\n".join(lines)
 
 
-def build_worksheet_xml(ws_def, ws_number):
-    """Build a single <worksheet> element.
+def build_worksheet_xml(ws_def):
+    """Build a single <worksheet> element (version 18.1 format).
 
-    XSD ordering for table (Workbook-VisualSpecification-G):
-        view -> style -> panes -> rows -> cols
-
-    XSD ordering for view:
-        datasources -> datasource-dependencies -> aggregation
-
-    XSD ordering for pane (PaneSpecification-G):
-        view (with breakdown) -> mark -> encodings
-
-    After table: simple-id -> worksheet-number
+    Structure:
+        worksheet -> table -> view (datasources, deps, rows, cols) + panes
     """
     name = ws_def["name"]
     mark_type = ws_def["mark"]
@@ -433,8 +425,6 @@ def build_worksheet_xml(ws_def, ws_number):
     cols_text = ws_def.get("cols", None)
     encodings = ws_def.get("encodings", {})
     tooltip_fields = ws_def.get("tooltip_fields", [])
-    ws_uuid = uid()
-
     # Build rows/cols text from field specs if not provided directly
     if rows_text is None:
         rows_text = (
@@ -452,10 +442,10 @@ def build_worksheet_xml(ws_def, ws_number):
     lines = []
     a = lines.append
 
-    a('  <worksheet name="{}" number="{}">'.format(_esc(name), ws_number))
+    a('  <worksheet name="{}">'.format(_esc(name)))
     a("    <table>")
 
-    # ---- view (1st child of table) ----
+    # ---- view ----
     a("      <view>")
     a("        <datasources>")
     a(
@@ -464,24 +454,15 @@ def build_worksheet_xml(ws_def, ws_number):
     )
     a("        </datasources>")
     a(build_datasource_deps_xml(indent=8))
-    a('        <aggregation value="true" />')
     a("      </view>")
 
-    # ---- style (2nd child of table) ----
+    # ---- style ----
     a("      <style />")
 
-    # ---- panes (3rd child of table) ----
+    # ---- panes ----
     a("      <panes>")
     a("        <pane>")
-    # view with breakdown (required first child per PaneSpecification-View-G)
-    a('          <view>')
-    a('            <breakdown value="auto" />')
-    a('          </view>')
-    # mark: empty element with class + type attributes
-    # XSD requires 'class' (PrimitiveType-ST); Tableau runtime also requires 'type'
-    # Both use the same PrimitiveType-ST enumeration (title case: Bar, Text, Line, etc.)
-    a('          <mark class="{}" type="{}" />'.format(
-        mark_type, mark_type))
+    a('          <mark class="{}" />'.format(mark_type))
     # encodings wrapper
     if encodings or tooltip_fields:
         a("          <encodings>")
@@ -516,17 +497,11 @@ def build_worksheet_xml(ws_def, ws_number):
     a("        </pane>")
     a("      </panes>")
 
-    # ---- rows (after panes per XSD) ----
+    # ---- rows / cols ----
     a("      <rows>{}</rows>".format(_esc(rows_text)))
-    # ---- cols (after rows per XSD) ----
     a("      <cols>{}</cols>".format(_esc(cols_text)))
 
     a("    </table>")
-
-    # simple-id (required per SimpleIdentifierForThisWorksheet-G)
-    a('    <simple-id uuid="{{{}}}" />'.format(ws_uuid))
-    # worksheet-number (required per Worksheet-WorksheetNumber-G)
-    a('    <worksheet-number number="{}" />'.format(ws_number))
     a("  </worksheet>")
 
     return "\n".join(lines)
@@ -535,10 +510,8 @@ def build_worksheet_xml(ws_def, ws_number):
 def build_dashboard_xml():
     """Build the <dashboard> element.
 
-    XSD ordering for DashboardDoc-G:
-        style? -> size? -> zones -> simple-id
+    Structure: style -> size -> zones
     """
-    dash_uuid = uid()
 
     lines = []
     a = lines.append
@@ -546,10 +519,8 @@ def build_dashboard_xml():
     a('  <dashboard name="Feed Operations Dashboard">')
 
     # size
-    a(
-        '    <size maxheight="900" maxwidth="1400"'
-        ' minheight="900" minwidth="1400" />'
-    )
+    a('    <size maxheight="900" maxwidth="1400"'
+       ' minheight="900" minwidth="1400" />')
 
     # zones
     a("    <zones>")
@@ -611,20 +582,13 @@ def build_dashboard_xml():
     a("      </zone>")
     a("    </zones>")
 
-    # simple-id
-    a('    <simple-id uuid="{{{}}}" />'.format(dash_uuid))
     a("  </dashboard>")
 
     return "\n".join(lines)
 
 
 def build_windows_xml():
-    """Build the <windows> element.
-
-    XSD ordering for dashboard window:
-        viewpoints -> active -> simple-id
-    """
-    win_uuid = uid()
+    """Build the <windows> element."""
 
     lines = []
     a = lines.append
@@ -644,9 +608,6 @@ def build_windows_xml():
     # active element
     a('      <active id="-1" />')
 
-    # simple-id
-    a('      <simple-id uuid="{{{}}}" />'.format(win_uuid))
-
     a("    </window>")
     a("  </windows>")
 
@@ -656,31 +617,18 @@ def build_windows_xml():
 def build_workbook_xml():
     """Build the complete <workbook> XML.
 
-    XSD ordering for WorkbookFile-CT (twb_2026.1.0.xsd):
-        document-format-change-manifest? -> repository-location? ->
-        preferences? -> style-theme? -> style? -> local-data? ->
-        datasources? -> datasource-relationships? -> mapsources? ->
-        shared-views? -> actions? -> worksheets? -> dashboards? ->
-        windows? -> datagraph? -> thumbnails? -> external? ->
-        referenced-extensions? -> explain-data -> data-orientation? ->
-        tab-agent-config? -> accelerator-details? -> workbook-optimizer?
+    Uses version 18.1 format for maximum compatibility.
+    Structure: preferences -> datasources -> worksheets -> dashboards -> windows
     """
     lines = []
     a = lines.append
 
     a('<?xml version="1.0" encoding="utf-8"?>')
     a(
-        '<workbook original-version="26.1"'
-        ' source-build="0.0.0 (0000.0.0.0)"'
-        ' source-platform="win"'
-        ' version="26.1"'
+        '<workbook source-platform="win"'
+        ' version="18.1"'
         ' xmlns:user="http://www.tableausoftware.com/xml/user">'
     )
-
-    # --- document-format-change-manifest (required first child) ---
-    a("  <document-format-change-manifest>")
-    a("    <ManifestByVersion />")
-    a("  </document-format-change-manifest>")
 
     # --- preferences ---
     a("  <preferences>")
@@ -698,8 +646,8 @@ def build_workbook_xml():
 
     # --- worksheets ---
     a("  <worksheets>")
-    for i, ws_def in enumerate(WORKSHEETS, start=1):
-        a(build_worksheet_xml(ws_def, ws_number=i))
+    for ws_def in WORKSHEETS:
+        a(build_worksheet_xml(ws_def))
     a("  </worksheets>")
 
     # --- dashboards ---
@@ -709,12 +657,6 @@ def build_workbook_xml():
 
     # --- windows ---
     a(build_windows_xml())
-
-    # --- explain-data (required by XSD Workbook-ExplainData-G) ---
-    a('  <explain-data enabled-for-viewer="false"'
-       ' extreme-values-enabled-for-all="false">')
-    a("    <explanation-types />")
-    a("  </explain-data>")
 
     a("</workbook>")
     return "\n".join(lines)
