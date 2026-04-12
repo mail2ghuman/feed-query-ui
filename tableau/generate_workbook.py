@@ -452,7 +452,7 @@ def build_worksheet_xml(ws_def, ws_number):
     lines = []
     a = lines.append
 
-    a('  <worksheet name="{}">'.format(_esc(name)))
+    a('  <worksheet name="{}" number="{}">'.format(_esc(name), ws_number))
     a("    <table>")
 
     # ---- view (1st child of table) ----
@@ -477,8 +477,10 @@ def build_worksheet_xml(ws_def, ws_number):
     a('          <view>')
     a('            <breakdown value="auto" />')
     a('          </view>')
-    # mark: empty element with class attribute (PaneSpecification-Mark-G)
-    a('          <mark class="{}" />'.format(mark_type))
+    # mark: empty element with class + type attributes
+    # XSD requires 'class' (PrimitiveType-ST); Tableau runtime also requires 'type'
+    a('          <mark class="{}" type="{}" />'.format(
+        mark_type, mark_type.lower()))
     # encodings wrapper
     if encodings or tooltip_fields:
         a("          <encodings>")
