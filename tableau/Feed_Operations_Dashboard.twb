@@ -84,7 +84,7 @@ END" />
   </datasource>
   </datasources>
   <worksheets>
-  <worksheet name="KPI Summary">
+  <worksheet name="KPI Summary" number="1">
     <table>
       <view>
         <datasources>
@@ -150,16 +150,16 @@ END" />
           <view>
             <breakdown value="auto" />
           </view>
-          <mark class="Text" />
+          <mark class="Text" type="text" />
         </pane>
       </panes>
       <rows></rows>
       <cols>[billing_feed_data].[sum:source_count:qk] [billing_feed_data].[sum:target_count:qk] [billing_feed_data].[avg:processing_delay_min:qk]</cols>
     </table>
-    <simple-id uuid="{381ddf60-bb61-47f6-9a57-c683e5aec8cb}" />
+    <simple-id uuid="{0b972ed4-4082-451d-8756-48b61f606e81}" />
     <worksheet-number number="1" />
   </worksheet>
-  <worksheet name="Today&apos;s Feed Status">
+  <worksheet name="Today&apos;s Feed Status" number="2">
     <table>
       <view>
         <datasources>
@@ -225,7 +225,7 @@ END" />
           <view>
             <breakdown value="auto" />
           </view>
-          <mark class="Bar" />
+          <mark class="Bar" type="bar" />
           <encodings>
             <color column="[billing_feed_data].[none:Calculation_HealthStatus:nk]" />
             <tooltip column="[billing_feed_data].[none:feed_file_prefix:nk]" />
@@ -240,10 +240,10 @@ END" />
       <rows>[billing_feed_data].[none:feed_file_prefix:nk]</rows>
       <cols>[billing_feed_data].[sum:source_count:qk] [billing_feed_data].[sum:target_count:qk] [billing_feed_data].[avg:processing_delay_min:qk]</cols>
     </table>
-    <simple-id uuid="{02eaf9ca-dd75-401b-8845-b7f539813c00}" />
+    <simple-id uuid="{d8f9ab8a-2134-4328-bf8d-ee77abd4d712}" />
     <worksheet-number number="2" />
   </worksheet>
-  <worksheet name="Weekly Trend">
+  <worksheet name="Weekly Trend" number="3">
     <table>
       <view>
         <datasources>
@@ -309,7 +309,7 @@ END" />
           <view>
             <breakdown value="auto" />
           </view>
-          <mark class="Line" />
+          <mark class="Line" type="line" />
           <encodings>
             <color column="[billing_feed_data].[none:Calculation_HealthStatus:nk]" />
             <tooltip column="[billing_feed_data].[none:billing_date:ok]" />
@@ -321,10 +321,10 @@ END" />
       <rows>[billing_feed_data].[cnt:feed_id:qk]</rows>
       <cols>[billing_feed_data].[none:billing_date:ok]</cols>
     </table>
-    <simple-id uuid="{63897fdd-a81a-45cb-b1d2-97158a9f45a3}" />
+    <simple-id uuid="{284f6f72-0e8b-42e5-aa66-b7093baeb254}" />
     <worksheet-number number="3" />
   </worksheet>
-  <worksheet name="Problematic Feeds">
+  <worksheet name="Problematic Feeds" number="4">
     <table>
       <view>
         <datasources>
@@ -390,7 +390,7 @@ END" />
           <view>
             <breakdown value="auto" />
           </view>
-          <mark class="Bar" />
+          <mark class="Bar" type="bar" />
           <encodings>
             <color column="[billing_feed_data].[none:Calculation_HealthStatus:nk]" />
             <size column="[billing_feed_data].[sum:source_count:qk]" />
@@ -405,10 +405,10 @@ END" />
       <rows>[billing_feed_data].[none:feed_file_prefix:nk]</rows>
       <cols>[billing_feed_data].[avg:processing_delay_min:qk]</cols>
     </table>
-    <simple-id uuid="{1162dd23-6881-4980-bcb0-9ea311cba6f6}" />
+    <simple-id uuid="{4797fcb2-73f0-400f-8586-9dbe042f9f6c}" />
     <worksheet-number number="4" />
   </worksheet>
-  <worksheet name="SLA Breach Heatmap">
+  <worksheet name="SLA Breach Heatmap" number="5">
     <table>
       <view>
         <datasources>
@@ -474,7 +474,7 @@ END" />
           <view>
             <breakdown value="auto" />
           </view>
-          <mark class="Square" />
+          <mark class="Square" type="square" />
           <encodings>
             <color column="[billing_feed_data].[avg:processing_delay_min:qk]" />
             <tooltip column="[billing_feed_data].[none:Calculation_Country:nk]" />
@@ -488,10 +488,10 @@ END" />
       <rows>[billing_feed_data].[none:Calculation_Country:nk]</rows>
       <cols>[billing_feed_data].[none:billing_date:ok]</cols>
     </table>
-    <simple-id uuid="{7d335b9e-2d89-4797-adf6-5bba31af66a8}" />
+    <simple-id uuid="{3eb96f8d-6451-4897-9e93-46009c00a5b5}" />
     <worksheet-number number="5" />
   </worksheet>
-  <worksheet name="Delay Distribution">
+  <worksheet name="Delay Distribution" number="6">
     <table>
       <view>
         <datasources>
@@ -557,7 +557,7 @@ END" />
           <view>
             <breakdown value="auto" />
           </view>
-          <mark class="Bar" />
+          <mark class="Bar" type="bar" />
           <encodings>
             <color column="[billing_feed_data].[none:Calculation_DelayBucket:nk]" />
             <tooltip column="[billing_feed_data].[none:Calculation_DelayBucket:nk]" />
@@ -569,7 +569,7 @@ END" />
       <rows>[billing_feed_data].[cnt:feed_id:qk]</rows>
       <cols>[billing_feed_data].[none:Calculation_DelayBucket:nk]</cols>
     </table>
-    <simple-id uuid="{61c52201-4c0d-4d20-9949-e3bfa8f78b3e}" />
+    <simple-id uuid="{2e3e2244-fbd9-4ec8-80cc-e5b978dbdf05}" />
     <worksheet-number number="6" />
   </worksheet>
   </worksheets>
@@ -591,7 +591,7 @@ END" />
         <zone h="27000" id="11" name="Delay Distribution" w="100000" x="0" y="73000" />
       </zone>
     </zones>
-    <simple-id uuid="{0a384b0b-3cd1-4b6c-a414-74796daec6fb}" />
+    <simple-id uuid="{19ddcb2e-fab1-4dd7-bcb3-d4fcd926ce5b}" />
   </dashboard>
   </dashboards>
   <windows>
@@ -605,7 +605,7 @@ END" />
         <viewpoint name="Delay Distribution" />
       </viewpoints>
       <active id="-1" />
-      <simple-id uuid="{3af5081f-7bd8-4671-a420-ed8d822d2621}" />
+      <simple-id uuid="{778b308e-3eec-46ae-b2ff-c9760b8bc1ab}" />
     </window>
   </windows>
   <explain-data enabled-for-viewer="false" extreme-values-enabled-for-all="false">
