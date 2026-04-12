@@ -267,11 +267,12 @@ def _column_instance_attrs(field, agg):
                     if role == "measure"
                     else ("ok" if kind == "ordinal" else "nk")
                 )
+            inst_type = {"qk": "quantitative", "ok": "ordinal", "nk": "nominal"}[sk]
             return (
                 "[{}]".format(field),
                 derivation,
                 "[{}:{}:{}]".format(agg, field, sk),
-                kind,
+                inst_type,
             )
     for cf in CALCULATED_FIELDS:
         if cf["name"] == field:
@@ -283,11 +284,12 @@ def _column_instance_attrs(field, agg):
                     if cf["role"] == "measure"
                     else ("ok" if cf["type"] == "ordinal" else "nk")
                 )
+            inst_type = {"qk": "quantitative", "ok": "ordinal", "nk": "nominal"}[sk]
             return (
                 "[{}]".format(field),
                 derivation,
                 "[{}:{}:{}]".format(agg, field, sk),
-                cf["type"],
+                inst_type,
             )
     return (
         "[{}]".format(field),

@@ -289,7 +289,7 @@ END" />
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
           <column-instance column="[Calculation_FeedHealth]" derivation="Avg" name="[avg:Calculation_FeedHealth:qk]" pivot="key" type="quantitative" />
-          <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="nominal" />
+          <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="quantitative" />
           <column-instance column="[processing_delay_min]" derivation="Avg" name="[avg:processing_delay_min:qk]" pivot="key" type="quantitative" />
           <column-instance column="[source_count]" derivation="Sum" name="[sum:source_count:qk]" pivot="key" type="quantitative" />
           <column-instance column="[target_count]" derivation="Sum" name="[sum:target_count:qk]" pivot="key" type="quantitative" />
@@ -464,7 +464,7 @@ END" />
           </column>
           <column-instance column="[Calculation_HealthStatus]" derivation="None" name="[none:Calculation_HealthStatus:nk]" pivot="key" type="nominal" />
           <column-instance column="[billing_date]" derivation="None" name="[none:billing_date:ok]" pivot="key" type="ordinal" />
-          <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="nominal" />
+          <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="quantitative" />
           <column-instance column="[processing_delay_min]" derivation="Avg" name="[avg:processing_delay_min:qk]" pivot="key" type="quantitative" />
         </datasource-dependencies>
         <aggregation value="true" />
@@ -721,7 +721,7 @@ END" />
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
           <column-instance column="[Calculation_DelayBucket]" derivation="None" name="[none:Calculation_DelayBucket:nk]" pivot="key" type="nominal" />
-          <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="nominal" />
+          <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="quantitative" />
           <column-instance column="[processing_delay_min]" derivation="Avg" name="[avg:processing_delay_min:qk]" pivot="key" type="quantitative" />
         </datasource-dependencies>
         <aggregation value="true" />
