@@ -184,19 +184,25 @@ def fqn(field, agg="none"):
     """Build a fully-qualified column reference for rows/cols shelf."""
     for name, dtype, role, kind in COLUMNS:
         if name == field:
-            sk = (
-                "qk"
-                if role == "measure"
-                else ("ok" if kind == "ordinal" else "nk")
-            )
+            if agg not in ("none", ""):
+                sk = "qk"
+            else:
+                sk = (
+                    "qk"
+                    if role == "measure"
+                    else ("ok" if kind == "ordinal" else "nk")
+                )
             return "[{}].[{}:{}:{}]".format(DS_NAME, agg, field, sk)
     for cf in CALCULATED_FIELDS:
         if cf["name"] == field:
-            sk = (
-                "qk"
-                if cf["role"] == "measure"
-                else ("ok" if cf["type"] == "ordinal" else "nk")
-            )
+            if agg not in ("none", ""):
+                sk = "qk"
+            else:
+                sk = (
+                    "qk"
+                    if cf["role"] == "measure"
+                    else ("ok" if cf["type"] == "ordinal" else "nk")
+                )
             return "[{}].[{}:{}:{}]".format(DS_NAME, agg, cf["name"], sk)
     return "[{}].[{}:{}:nk]".format(DS_NAME, agg, field)
 
