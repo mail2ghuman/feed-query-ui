@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Spark session and loading data...")
     csv_path = os.environ.get(
         "CSV_DATA_PATH",
-        os.path.join(os.path.dirname(__file__), "..", "data", "billing_feed_data.csv"),
+        os.path.join(os.path.dirname(__file__), "..", "data", "billing_feed_data_advanced.csv"),
     )
     csv_path = os.path.abspath(csv_path)
     spark_manager = SparkManager(csv_path=csv_path)

@@ -7,12 +7,14 @@ interface QueryInputProps {
 }
 
 const SUGGESTIONS = [
-  "Was feed 4001 generated today?",
-  "Show monthly volume for each feed",
-  "List all files generated on the latest day",
-  "Which feeds had INACTIVE versions yesterday?",
-  "Show total source count by feed for January 2025",
-  "How many FULL vs INCR versions were created?",
+  "Which feeds breached SLA today?",
+  "Show top 10 feeds with highest processing delays",
+  "List feeds that required retries in the last week",
+  "Were there any global incident days with multiple SLA breaches?",
+  "Show monthly volume trends for BILLING_US",
+  "Compare year-end volumes (Dec) vs average for all feeds",
+  "Which feeds had processing delays over 300 minutes?",
+  "Show failed pipeline retries by feed for this month",
 ];
 
 export default function QueryInput({ onSubmit, isLoading }: QueryInputProps) {

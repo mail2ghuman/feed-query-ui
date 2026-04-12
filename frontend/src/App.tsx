@@ -111,8 +111,8 @@ function App() {
               Ask anything about your feed data
             </h2>
             <p className="text-sm text-gray-400 max-w-md">
-              Try questions like &ldquo;Was feed 4001 generated today?&rdquo; or
-              &ldquo;Show monthly volume for each feed&rdquo;. Your question
+              Try questions like &ldquo;Which feeds breached SLA today?&rdquo; or
+              &ldquo;Show feeds with high processing delays&rdquo;. Your question
               will be converted to SQL and run against the Hive table.
             </p>
           </div>
