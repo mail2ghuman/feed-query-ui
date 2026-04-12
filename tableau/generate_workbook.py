@@ -479,8 +479,9 @@ def build_worksheet_xml(ws_def, ws_number):
     a('          </view>')
     # mark: empty element with class + type attributes
     # XSD requires 'class' (PrimitiveType-ST); Tableau runtime also requires 'type'
+    # Both use the same PrimitiveType-ST enumeration (title case: Bar, Text, Line, etc.)
     a('          <mark class="{}" type="{}" />'.format(
-        mark_type, mark_type.lower()))
+        mark_type, mark_type))
     # encodings wrapper
     if encodings or tooltip_fields:
         a("          <encodings>")
