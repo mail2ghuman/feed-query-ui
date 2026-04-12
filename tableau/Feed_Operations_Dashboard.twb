@@ -12,11 +12,11 @@
     <connection class="federated">
       <named-connections>
         <named-connection caption="billing_feed_data_advanced" name="textscan.0">
-          <connection class="textscan" directory="Data" filename="billing_feed_data_advanced.csv" separator="," />
+          <connection class="textscan" directory="Data" filename="billing_feed_data_advanced.csv" password="" server="" />
         </named-connection>
       </named-connections>
       <relation connection="textscan.0" name="billing_feed_data_advanced.csv" table="[billing_feed_data_advanced#csv]" type="table">
-        <columns header="yes">
+        <columns character-set="UTF-8" header="yes" locale="en_US" separator=",">
           <column datatype="integer" name="feed_id" ordinal="0" />
           <column datatype="date" name="billing_date" ordinal="1" />
           <column datatype="integer" name="source_count" ordinal="2" />
