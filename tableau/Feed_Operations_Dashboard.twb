@@ -9,8 +9,13 @@
   </preferences>
   <datasources>
   <datasource caption="Billing Feed Data" inline="true" name="billing_feed_data" version="18.1">
-    <connection class="textscan" directory="Data" filename="billing_feed_data_advanced.csv" separator=",">
-      <relation name="billing_feed_data_advanced.csv" table="[billing_feed_data_advanced#csv]" type="table">
+    <connection class="federated">
+      <named-connections>
+        <named-connection caption="billing_feed_data_advanced" name="textscan.0">
+          <connection class="textscan" directory="Data" filename="billing_feed_data_advanced.csv" separator="," />
+        </named-connection>
+      </named-connections>
+      <relation connection="textscan.0" name="billing_feed_data_advanced.csv" table="[billing_feed_data_advanced#csv]" type="table">
         <columns header="yes">
           <column datatype="integer" name="feed_id" ordinal="0" />
           <column datatype="date" name="billing_date" ordinal="1" />
@@ -27,6 +32,151 @@
           <column datatype="string" name="feed_file_prefix" ordinal="12" />
         </columns>
       </relation>
+      <metadata-records>
+        <metadata-record class="column">
+          <remote-name>feed_id</remote-name>
+          <remote-type>20</remote-type>
+          <local-name>[feed_id]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>feed_id</remote-alias>
+          <ordinal>0</ordinal>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>billing_date</remote-name>
+          <remote-type>7</remote-type>
+          <local-name>[billing_date]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>billing_date</remote-alias>
+          <ordinal>1</ordinal>
+          <local-type>date</local-type>
+          <aggregation>Year</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>source_count</remote-name>
+          <remote-type>20</remote-type>
+          <local-name>[source_count]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>source_count</remote-alias>
+          <ordinal>2</ordinal>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>target_count</remote-name>
+          <remote-type>20</remote-type>
+          <local-name>[target_count]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>target_count</remote-alias>
+          <ordinal>3</ordinal>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>file_count</remote-name>
+          <remote-type>20</remote-type>
+          <local-name>[file_count]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>file_count</remote-alias>
+          <ordinal>4</ordinal>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>ingestion_time</remote-name>
+          <remote-type>135</remote-type>
+          <local-name>[ingestion_time]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>ingestion_time</remote-alias>
+          <ordinal>5</ordinal>
+          <local-type>datetime</local-type>
+          <aggregation>Year</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>processing_delay_min</remote-name>
+          <remote-type>20</remote-type>
+          <local-name>[processing_delay_min]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>processing_delay_min</remote-alias>
+          <ordinal>6</ordinal>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>update_dt</remote-name>
+          <remote-type>135</remote-type>
+          <local-name>[update_dt]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>update_dt</remote-alias>
+          <ordinal>7</ordinal>
+          <local-type>datetime</local-type>
+          <aggregation>Year</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>sla_breach</remote-name>
+          <remote-type>130</remote-type>
+          <local-name>[sla_breach]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>sla_breach</remote-alias>
+          <ordinal>8</ordinal>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>version</remote-name>
+          <remote-type>20</remote-type>
+          <local-name>[version]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>version</remote-alias>
+          <ordinal>9</ordinal>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>version_type</remote-name>
+          <remote-type>130</remote-type>
+          <local-name>[version_type]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>version_type</remote-alias>
+          <ordinal>10</ordinal>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>version_status</remote-name>
+          <remote-type>130</remote-type>
+          <local-name>[version_status]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>version_status</remote-alias>
+          <ordinal>11</ordinal>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>feed_file_prefix</remote-name>
+          <remote-type>130</remote-type>
+          <local-name>[feed_file_prefix]</local-name>
+          <parent-name>[billing_feed_data_advanced.csv]</parent-name>
+          <remote-alias>feed_file_prefix</remote-alias>
+          <ordinal>12</ordinal>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <contains-null>true</contains-null>
+        </metadata-record>
+      </metadata-records>
     </connection>
     <column caption="Feed ID" datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
     <column caption="Billing Date" datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
@@ -138,6 +288,11 @@ END" />
           <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
+          <column-instance column="[Calculation_FeedHealth]" derivation="Avg" name="[avg:Calculation_FeedHealth:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="nominal" />
+          <column-instance column="[processing_delay_min]" derivation="Avg" name="[avg:processing_delay_min:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[source_count]" derivation="Sum" name="[sum:source_count:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[target_count]" derivation="Sum" name="[sum:target_count:qk]" pivot="key" type="quantitative" />
         </datasource-dependencies>
         <aggregation value="true" />
       </view>
@@ -218,6 +373,13 @@ END" />
           <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
+          <column-instance column="[Calculation_HealthStatus]" derivation="None" name="[none:Calculation_HealthStatus:nk]" pivot="key" type="nominal" />
+          <column-instance column="[Calculation_SourceTargetDiff]" derivation="Sum" name="[sum:Calculation_SourceTargetDiff:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[feed_file_prefix]" derivation="None" name="[none:feed_file_prefix:nk]" pivot="key" type="nominal" />
+          <column-instance column="[processing_delay_min]" derivation="Avg" name="[avg:processing_delay_min:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[sla_breach]" derivation="None" name="[none:sla_breach:nk]" pivot="key" type="nominal" />
+          <column-instance column="[source_count]" derivation="Sum" name="[sum:source_count:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[target_count]" derivation="Sum" name="[sum:target_count:qk]" pivot="key" type="quantitative" />
         </datasource-dependencies>
         <aggregation value="true" />
       </view>
@@ -300,6 +462,10 @@ END" />
           <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
+          <column-instance column="[Calculation_HealthStatus]" derivation="None" name="[none:Calculation_HealthStatus:nk]" pivot="key" type="nominal" />
+          <column-instance column="[billing_date]" derivation="None" name="[none:billing_date:ok]" pivot="key" type="ordinal" />
+          <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="nominal" />
+          <column-instance column="[processing_delay_min]" derivation="Avg" name="[avg:processing_delay_min:qk]" pivot="key" type="quantitative" />
         </datasource-dependencies>
         <aggregation value="true" />
       </view>
@@ -379,6 +545,13 @@ END" />
           <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
+          <column-instance column="[Calculation_Country]" derivation="None" name="[none:Calculation_Country:nk]" pivot="key" type="nominal" />
+          <column-instance column="[Calculation_FeedHealth]" derivation="Sum" name="[sum:Calculation_FeedHealth:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[Calculation_HealthStatus]" derivation="None" name="[none:Calculation_HealthStatus:nk]" pivot="key" type="nominal" />
+          <column-instance column="[feed_file_prefix]" derivation="None" name="[none:feed_file_prefix:nk]" pivot="key" type="nominal" />
+          <column-instance column="[processing_delay_min]" derivation="Avg" name="[avg:processing_delay_min:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[sla_breach]" derivation="None" name="[none:sla_breach:nk]" pivot="key" type="nominal" />
+          <column-instance column="[source_count]" derivation="Sum" name="[sum:source_count:qk]" pivot="key" type="quantitative" />
         </datasource-dependencies>
         <aggregation value="true" />
       </view>
@@ -461,6 +634,11 @@ END" />
           <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
+          <column-instance column="[Calculation_Country]" derivation="None" name="[none:Calculation_Country:nk]" pivot="key" type="nominal" />
+          <column-instance column="[billing_date]" derivation="None" name="[none:billing_date:ok]" pivot="key" type="ordinal" />
+          <column-instance column="[processing_delay_min]" derivation="Avg" name="[avg:processing_delay_min:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[source_count]" derivation="Sum" name="[sum:source_count:qk]" pivot="key" type="quantitative" />
+          <column-instance column="[target_count]" derivation="Sum" name="[sum:target_count:qk]" pivot="key" type="quantitative" />
         </datasource-dependencies>
         <aggregation value="true" />
       </view>
@@ -542,6 +720,9 @@ END" />
           <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
+          <column-instance column="[Calculation_DelayBucket]" derivation="None" name="[none:Calculation_DelayBucket:nk]" pivot="key" type="nominal" />
+          <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="nominal" />
+          <column-instance column="[processing_delay_min]" derivation="Avg" name="[avg:processing_delay_min:qk]" pivot="key" type="quantitative" />
         </datasource-dependencies>
         <aggregation value="true" />
       </view>
