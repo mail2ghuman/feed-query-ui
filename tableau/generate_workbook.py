@@ -219,23 +219,20 @@ WORKSHEETS = [
         "name": "KPI Summary",
         "mark": "Text",
         "rows": "",
-        "cols_fields": [
+        "cols_fields": [("Calculation_FeedHealth", "avg")],
+        "encodings": {"text": ("Calculation_FeedHealth", "avg")},
+        "tooltip_fields": [
             ("source_count", "sum"),
             ("target_count", "sum"),
             ("processing_delay_min", "avg"),
+            ("feed_id", "cnt"),
         ],
-        "encodings": {},
-        "tooltip_fields": [],
     },
     {
         "name": "Today's Feed Status",
         "mark": "Bar",
         "rows_fields": [("feed_file_prefix", "none")],
-        "cols_fields": [
-            ("source_count", "sum"),
-            ("target_count", "sum"),
-            ("processing_delay_min", "avg"),
-        ],
+        "cols_fields": [("source_count", "sum")],
         "encodings": {"color": ("Calculation_HealthStatus", "none")},
         "tooltip_fields": [
             ("feed_file_prefix", "none"),
