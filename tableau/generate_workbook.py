@@ -35,8 +35,12 @@ DS_CAPTION = "Billing Feed Data"
 
 
 def uid():
-    """Generate a short unique identifier for simple-id elements."""
-    return str(uuid.uuid4()).replace("-", "")[:16]
+    """Generate a full UUID for simple-id elements.
+
+    XSD type QUUID-ST requires format: {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
+    The curly braces are added by the caller via '{{{}}}'.format(uid()).
+    """
+    return str(uuid.uuid4())
 
 
 # ---------------------------------------------------------------------------
@@ -407,7 +411,7 @@ def build_datasource_deps_xml(indent=8):
     return "\n".join(lines)
 
 
-def build_worksheet_xml(ws_def):
+def build_worksheet_xml(ws_def, ws_number):
     """Build a single <worksheet> element.
 
     XSD ordering for table (Workbook-VisualSpecification-G):
@@ -417,7 +421,9 @@ def build_worksheet_xml(ws_def):
         datasources -> datasource-dependencies -> aggregation
 
     XSD ordering for pane (PaneSpecification-G):
-        mark -> encodings
+        view (with breakdown) -> mark -> encodings
+
+    After table: simple-id -> worksheet-number
     """
     name = ws_def["name"]
     mark_type = ws_def["mark"]
@@ -467,7 +473,11 @@ def build_worksheet_xml(ws_def):
     # ---- panes (3rd child of table) ----
     a("      <panes>")
     a("        <pane>")
-    # mark: empty element with class attribute
+    # view with breakdown (required first child per PaneSpecification-View-G)
+    a('          <view>')
+    a('            <breakdown value="auto" />')
+    a('          </view>')
+    # mark: empty element with class attribute (PaneSpecification-Mark-G)
     a('          <mark class="{}" />'.format(mark_type))
     # encodings wrapper
     if encodings or tooltip_fields:
@@ -510,8 +520,10 @@ def build_worksheet_xml(ws_def):
 
     a("    </table>")
 
-    # simple-id (required last child of worksheet)
+    # simple-id (required per SimpleIdentifierForThisWorksheet-G)
     a('    <simple-id uuid="{{{}}}" />'.format(ws_uuid))
+    # worksheet-number (required per Worksheet-WorksheetNumber-G)
+    a('    <worksheet-number number="{}" />'.format(ws_number))
     a("  </worksheet>")
 
     return "\n".join(lines)
@@ -641,8 +653,14 @@ def build_windows_xml():
 def build_workbook_xml():
     """Build the complete <workbook> XML.
 
-    XSD ordering for WorkbookFile-CT:
-        preferences -> datasources -> worksheets -> dashboards -> windows
+    XSD ordering for WorkbookFile-CT (twb_2026.1.0.xsd):
+        document-format-change-manifest? -> repository-location? ->
+        preferences? -> style-theme? -> style? -> local-data? ->
+        datasources? -> datasource-relationships? -> mapsources? ->
+        shared-views? -> actions? -> worksheets? -> dashboards? ->
+        windows? -> datagraph? -> thumbnails? -> external? ->
+        referenced-extensions? -> explain-data -> data-orientation? ->
+        tab-agent-config? -> accelerator-details? -> workbook-optimizer?
     """
     lines = []
     a = lines.append
@@ -650,11 +668,16 @@ def build_workbook_xml():
     a('<?xml version="1.0" encoding="utf-8"?>')
     a(
         '<workbook original-version="26.1"'
-        ' source-build="2026.1.0 (20261.26.0211.1127)"'
+        ' source-build="0.0.0 (0000.0.0.0)"'
         ' source-platform="win"'
         ' version="26.1"'
         ' xmlns:user="http://www.tableausoftware.com/xml/user">'
     )
+
+    # --- document-format-change-manifest (required first child) ---
+    a("  <document-format-change-manifest>")
+    a("    <ManifestByVersion />")
+    a("  </document-format-change-manifest>")
 
     # --- preferences ---
     a("  <preferences>")
@@ -672,8 +695,8 @@ def build_workbook_xml():
 
     # --- worksheets ---
     a("  <worksheets>")
-    for ws_def in WORKSHEETS:
-        a(build_worksheet_xml(ws_def))
+    for i, ws_def in enumerate(WORKSHEETS, start=1):
+        a(build_worksheet_xml(ws_def, ws_number=i))
     a("  </worksheets>")
 
     # --- dashboards ---
@@ -683,6 +706,12 @@ def build_workbook_xml():
 
     # --- windows ---
     a(build_windows_xml())
+
+    # --- explain-data (required by XSD Workbook-ExplainData-G) ---
+    a('  <explain-data enabled-for-viewer="false"'
+       ' extreme-values-enabled-for-all="false">')
+    a("    <explanation-types />")
+    a("  </explain-data>")
 
     a("</workbook>")
     return "\n".join(lines)
