@@ -454,6 +454,7 @@ def build_worksheet_xml(ws_def):
     )
     a("        </datasources>")
     a(build_datasource_deps_xml(indent=8))
+    a('        <aggregation value="true" />')
     a("      </view>")
 
     # ---- style ----
@@ -461,7 +462,10 @@ def build_worksheet_xml(ws_def):
 
     # ---- panes ----
     a("      <panes>")
-    a("        <pane>")
+    a('        <pane selection-relaxation-option="selection-relaxation-allow">')
+    a('          <view>')
+    a('            <breakdown value="auto" />')
+    a('          </view>')
     a('          <mark class="{}" />'.format(mark_type))
     # encodings wrapper
     if encodings or tooltip_fields:
@@ -526,13 +530,13 @@ def build_dashboard_xml():
     a("    <zones>")
     # Root layout zone (vertical container)
     a(
-        '      <zone h="100000" id="2" type-v2="layout-basic"'
+        '      <zone h="100000" id="2" type="layout-basic"'
         ' w="100000" x="0" y="0">'
     )
 
     # Title zone
     a(
-        '        <zone h="5000" id="3" type-v2="title"'
+        '        <zone h="5000" id="3" type="title"'
         ' w="100000" x="0" y="0" />'
     )
 
@@ -544,7 +548,7 @@ def build_dashboard_xml():
 
     # Row 2: Today's Status + Weekly Trend
     a(
-        '        <zone h="28000" id="5" type-v2="layout-basic"'
+        '        <zone h="28000" id="5" type="layout-basic"'
         ' w="100000" x="0" y="17000">'
     )
     a(
@@ -560,7 +564,7 @@ def build_dashboard_xml():
 
     # Row 3: Problematic Feeds + SLA Heatmap
     a(
-        '        <zone h="28000" id="8" type-v2="layout-basic"'
+        '        <zone h="28000" id="8" type="layout-basic"'
         ' w="100000" x="0" y="45000">'
     )
     a(
@@ -625,7 +629,9 @@ def build_workbook_xml():
 
     a('<?xml version="1.0" encoding="utf-8"?>')
     a(
-        '<workbook source-platform="win"'
+        '<workbook original-version="18.1"'
+        ' source-build="0.0.0 (0000.0.0.0)"'
+        ' source-platform="win"'
         ' version="18.1"'
         ' xmlns:user="http://www.tableausoftware.com/xml/user">'
     )
