@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<workbook xmlns:user="http://www.tableausoftware.com/xml/user" original-version="18.1" source-build="2024.1.0 (20241.24.0117.1044)" source-platform="win" version="18.1">
+  <preferences>
+    <color-palette name="Health Status Colors" type="regular">
+      <color>#22b14c</color>
+      <color>#ff7f27</color>
+      <color>#ed1c24</color>
+    </color-palette>
+  </preferences>
+  <datasources>
+    <datasource caption="Billing Feed Data" inline="true" name="billing_feed_data" version="18.1">
+      <connection class="textscan" directory="Data" filename="billing_feed_data_advanced.csv" separator="," header="yes">
+        <relation name="billing_feed_data_advanced.csv" table="[billing_feed_data_advanced#csv]" type="table">
+          <columns header="yes">
+            <column datatype="integer" name="feed_id" ordinal="0"/>
+            <column datatype="date" name="billing_date" ordinal="1"/>
+            <column datatype="integer" name="source_count" ordinal="2"/>
+            <column datatype="integer" name="target_count" ordinal="3"/>
+            <column datatype="integer" name="file_count" ordinal="4"/>
+            <column datatype="datetime" name="ingestion_time" ordinal="5"/>
+            <column datatype="integer" name="processing_delay_min" ordinal="6"/>
+            <column datatype="datetime" name="update_dt" ordinal="7"/>
+            <column datatype="string" name="sla_breach" ordinal="8"/>
+            <column datatype="integer" name="version" ordinal="9"/>
+            <column datatype="string" name="version_type" ordinal="10"/>
+            <column datatype="string" name="version_status" ordinal="11"/>
+            <column datatype="string" name="feed_file_prefix" ordinal="12"/>
+          </columns>
+        </relation>
+      </connection>
+      <column datatype="integer" name="[feed_id]" role="dimension" type="nominal" caption="Feed ID"/>
+      <column datatype="date" name="[billing_date]" role="dimension" type="ordinal" caption="Billing Date"/>
+      <column datatype="integer" name="[source_count]" role="measure" type="quantitative" caption="Source Count"/>
+      <column datatype="integer" name="[target_count]" role="measure" type="quantitative" caption="Target Count"/>
+      <column datatype="integer" name="[file_count]" role="measure" type="quantitative" caption="File Count"/>
+      <column datatype="datetime" name="[ingestion_time]" role="dimension" type="ordinal" caption="Ingestion Time"/>
+      <column datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" caption="Processing Delay (min)"/>
+      <column datatype="datetime" name="[update_dt]" role="dimension" type="ordinal" caption="Update Timestamp"/>
+      <column datatype="string" name="[sla_breach]" role="dimension" type="nominal" caption="SLA Breach"/>
+      <column datatype="integer" name="[version]" role="measure" type="quantitative" caption="Version"/>
+      <column datatype="string" name="[version_type]" role="dimension" type="nominal" caption="Version Type"/>
+      <column datatype="string" name="[version_status]" role="dimension" type="nominal" caption="Version Status"/>
+      <column datatype="string" name="[feed_file_prefix]" role="dimension" type="nominal" caption="Feed File Prefix"/>
+      <column caption="Health Status" datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
+        <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;Failed&quot;
+ELSEIF [processing_delay_min] &gt; 300 THEN &quot;Partial&quot;
+ELSE &quot;Healthy&quot;
+END"/>
+      </column>
+      <column caption="Country" datatype="string" name="[Calculation_Country]" role="dimension" type="nominal">
+        <calculation class="tableau" formula="RIGHT([feed_file_prefix], 2)"/>
+      </column>
+      <column caption="Source Target Diff" datatype="integer" name="[Calculation_SourceTargetDiff]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="[source_count] - [target_count]"/>
+      </column>
+      <column caption="Discrepancy %" datatype="real" name="[Calculation_DiscrepancyPct]" role="measure" type="quantitative" default-format="p0.0%">
+        <calculation class="tableau" formula="IF [source_count] = 0 THEN 0
+ELSE ABS([source_count] - [target_count]) / [source_count]
+END"/>
+      </column>
+      <column caption="Has Retries" datatype="string" name="[Calculation_HasRetries]" role="dimension" type="nominal">
+        <calculation class="tableau" formula="IF [version] &gt; 1 THEN &quot;Yes&quot; ELSE &quot;No&quot; END"/>
+      </column>
+      <column caption="Is Latest Day" datatype="boolean" name="[Calculation_IsLatestDay]" role="dimension" type="nominal">
+        <calculation class="tableau" formula="[billing_date] = {MAX([billing_date])}"/>
+      </column>
+      <column caption="Is Last Week" datatype="boolean" name="[Calculation_IsLastWeek]" role="dimension" type="nominal">
+        <calculation class="tableau" formula="[billing_date] &gt;= DATEADD('day', -7, {MAX([billing_date])})"/>
+      </column>
+      <column caption="Total Feeds Today" datatype="integer" name="[Calculation_TotalFeeds]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="{FIXED : COUNTD(IF [billing_date] = {MAX([billing_date])} THEN [feed_id] END)}"/>
+      </column>
+      <column caption="SLA Breaches Today" datatype="integer" name="[Calculation_SLABreachCount]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="{FIXED : SUM(IF [billing_date] = {MAX([billing_date])} AND [sla_breach] = &quot;True&quot; THEN 1 ELSE 0 END)}"/>
+      </column>
+      <column caption="Avg Processing Delay (min)" datatype="real" name="[Calculation_AvgDelay]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="{FIXED : AVG(IF [billing_date] = {MAX([billing_date])} THEN [processing_delay_min] END)}"/>
+      </column>
+      <column caption="Feeds With Retries Today" datatype="integer" name="[Calculation_RetryCount]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="{FIXED : COUNTD(IF [billing_date] = {MAX([billing_date])} AND [version] &gt; 1 THEN [feed_id] END)}"/>
+      </column>
+      <column caption="Health Color" datatype="string" name="[Calculation_HealthColor]" role="dimension" type="nominal">
+        <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;red&quot;
+ELSEIF [processing_delay_min] &gt; 300 THEN &quot;amber&quot;
+ELSE &quot;green&quot;
+END"/>
+      </column>
+      <column caption="Delay Bucket" datatype="string" name="[Calculation_DelayBucket]" role="dimension" type="nominal">
+        <calculation class="tableau" formula="IF [processing_delay_min] &lt;= 60 THEN &quot;0-60 min&quot;
+ELSEIF [processing_delay_min] &lt;= 120 THEN &quot;60-120 min&quot;
+ELSEIF [processing_delay_min] &lt;= 180 THEN &quot;120-180 min&quot;
+ELSEIF [processing_delay_min] &lt;= 300 THEN &quot;180-300 min&quot;
+ELSE &quot;300+ min (Critical)&quot;
+END"/>
+      </column>
+      <column caption="Feed Health Score" datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
+        <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100"/>
+      </column>
+      <metadata-records>
+        <metadata-record class="column">
+          <remote-name>feed_id</remote-name>
+          <local-name>[feed_id]</local-name>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>billing_date</remote-name>
+          <local-name>[billing_date]</local-name>
+          <local-type>date</local-type>
+          <aggregation>Count</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>source_count</remote-name>
+          <local-name>[source_count]</local-name>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>target_count</remote-name>
+          <local-name>[target_count]</local-name>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>file_count</remote-name>
+          <local-name>[file_count]</local-name>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>ingestion_time</remote-name>
+          <local-name>[ingestion_time]</local-name>
+          <local-type>datetime</local-type>
+          <aggregation>Count</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>processing_delay_min</remote-name>
+          <local-name>[processing_delay_min]</local-name>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>update_dt</remote-name>
+          <local-name>[update_dt]</local-name>
+          <local-type>datetime</local-type>
+          <aggregation>Count</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>sla_breach</remote-name>
+          <local-name>[sla_breach]</local-name>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>version</remote-name>
+          <local-name>[version]</local-name>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>version_type</remote-name>
+          <local-name>[version_type]</local-name>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>version_status</remote-name>
+          <local-name>[version_status]</local-name>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+        </metadata-record>
+        <metadata-record class="column">
+          <remote-name>feed_file_prefix</remote-name>
+          <local-name>[feed_file_prefix]</local-name>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+        </metadata-record>
+      </metadata-records>
+    </datasource>
+  </datasources>
+  <worksheets>
+    <worksheet name="KPI Summary">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="Billing Feed Data" name="billing_feed_data"/>
+          </datasources>
+        </view>
+        <rows/>
+        <cols>[billing_feed_data].[sum:Calculation_TotalFeeds:qk] [billing_feed_data].[sum:Calculation_SLABreachCount:qk] [billing_feed_data].[avg:Calculation_AvgDelay:qk] [billing_feed_data].[sum:Calculation_RetryCount:qk]</cols>
+        <panes>
+          <pane>
+            <mark class="Text">
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:Calculation_TotalFeeds:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:Calculation_SLABreachCount:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[avg:Calculation_AvgDelay:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:Calculation_RetryCount:qk]"/>
+            </mark>
+          </pane>
+        </panes>
+      </table>
+    </worksheet>
+    <worksheet name="Today's Feed Status">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="Billing Feed Data" name="billing_feed_data"/>
+          </datasources>
+          <filter class="categorical" column="[billing_feed_data].[Calculation_IsLatestDay]"/>
+        </view>
+        <rows>[billing_feed_data].[none:feed_file_prefix:nk]</rows>
+        <cols>[billing_feed_data].[sum:source_count:qk] [billing_feed_data].[sum:target_count:qk] [billing_feed_data].[avg:processing_delay_min:qk]</cols>
+        <panes>
+          <pane>
+            <mark class="Bar">
+              <encoding attr="color" field="[billing_feed_data].[none:Calculation_HealthStatus:nk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[none:feed_file_prefix:nk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:source_count:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:target_count:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[avg:processing_delay_min:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[none:sla_breach:nk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:Calculation_SourceTargetDiff:qk]"/>
+            </mark>
+          </pane>
+        </panes>
+      </table>
+    </worksheet>
+    <worksheet name="Weekly Trend">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="Billing Feed Data" name="billing_feed_data"/>
+          </datasources>
+          <filter class="categorical" column="[billing_feed_data].[Calculation_IsLastWeek]"/>
+        </view>
+        <rows>[billing_feed_data].[cnt:feed_id:qk] [billing_feed_data].[sum:Calculation_SLABreachCount:qk]</rows>
+        <cols>[billing_feed_data].[none:billing_date:ok]</cols>
+        <panes>
+          <pane>
+            <mark class="Line">
+              <encoding attr="color" field="[billing_feed_data].[none:Calculation_HealthStatus:nk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[none:billing_date:ok]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[cnt:feed_id:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:Calculation_SLABreachCount:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[avg:Calculation_AvgDelay:qk]"/>
+            </mark>
+          </pane>
+        </panes>
+      </table>
+    </worksheet>
+    <worksheet name="Problematic Feeds">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="Billing Feed Data" name="billing_feed_data"/>
+          </datasources>
+        </view>
+        <rows>[billing_feed_data].[none:feed_file_prefix:nk]</rows>
+        <cols>[billing_feed_data].[sum:Calculation_SLABreachCount:qk] [billing_feed_data].[avg:processing_delay_min:qk]</cols>
+        <panes>
+          <pane>
+            <mark class="Bar">
+              <encoding attr="color" field="[billing_feed_data].[none:Calculation_HealthStatus:nk]"/>
+              <encoding attr="size" field="[billing_feed_data].[avg:processing_delay_min:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[none:feed_file_prefix:nk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[none:Calculation_Country:nk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:Calculation_SLABreachCount:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[avg:processing_delay_min:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:Calculation_RetryCount:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:Calculation_FeedHealth:qk]"/>
+            </mark>
+          </pane>
+        </panes>
+      </table>
+    </worksheet>
+    <worksheet name="SLA Breach Heatmap">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="Billing Feed Data" name="billing_feed_data"/>
+          </datasources>
+        </view>
+        <rows>[billing_feed_data].[none:Calculation_Country:nk]</rows>
+        <cols>[billing_feed_data].[none:billing_date:ok]</cols>
+        <panes>
+          <pane>
+            <mark class="Square">
+              <encoding attr="color" field="[billing_feed_data].[sum:Calculation_SLABreachCount:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[none:Calculation_Country:nk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[none:billing_date:ok]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:Calculation_SLABreachCount:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[avg:processing_delay_min:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:source_count:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[sum:target_count:qk]"/>
+            </mark>
+          </pane>
+        </panes>
+      </table>
+    </worksheet>
+    <worksheet name="Delay Distribution">
+      <table>
+        <view>
+          <datasources>
+            <datasource caption="Billing Feed Data" name="billing_feed_data"/>
+          </datasources>
+        </view>
+        <rows>[billing_feed_data].[cnt:feed_id:qk]</rows>
+        <cols>[billing_feed_data].[none:Calculation_DelayBucket:nk]</cols>
+        <panes>
+          <pane>
+            <mark class="Bar">
+              <encoding attr="color" field="[billing_feed_data].[none:Calculation_DelayBucket:nk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[none:Calculation_DelayBucket:nk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[cnt:feed_id:qk]"/>
+              <encoding attr="tooltip" field="[billing_feed_data].[avg:processing_delay_min:qk]"/>
+            </mark>
+          </pane>
+        </panes>
+      </table>
+    </worksheet>
+  </worksheets>
+  <dashboards>
+    <dashboard name="Feed Operations Dashboard">
+      <size maxheight="900" maxwidth="1400" minheight="900" minwidth="1400"/>
+      <zones>
+        <zone h="100000" id="1" type-v2="layout-basic" w="100000" x="0" y="0">
+          <zone h="5000" id="2" type-v2="title" w="100000" x="0" y="0"/>
+          <zone h="12000" id="3" name="KPI Summary" type-v2="worksheet" w="100000" x="0" y="5000"/>
+          <zone h="30000" id="4" type-v2="layout-basic" w="100000" x="0" y="17000">
+            <zone h="30000" id="5" name="Today's Feed Status" type-v2="worksheet" w="50000" x="0" y="0"/>
+            <zone h="30000" id="6" name="Weekly Trend" type-v2="worksheet" w="50000" x="50000" y="0"/>
+          </zone>
+          <zone h="28000" id="7" type-v2="layout-basic" w="100000" x="0" y="47000">
+            <zone h="28000" id="8" name="Problematic Feeds" type-v2="worksheet" w="50000" x="0" y="0"/>
+            <zone h="28000" id="9" name="SLA Breach Heatmap" type-v2="worksheet" w="50000" x="50000" y="0"/>
+          </zone>
+          <zone h="25000" id="10" name="Delay Distribution" type-v2="worksheet" w="100000" x="0" y="75000"/>
+        </zone>
+      </zones>
+    </dashboard>
+  </dashboards>
+  <windows>
+    <window class="dashboard" name="Feed Operations Dashboard" maximized="true"/>
+  </windows>
+</workbook>
