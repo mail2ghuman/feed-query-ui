@@ -417,7 +417,7 @@ def build_datasource_xml():
     a(
         '          <connection class="textscan" directory="Data"'
         ' filename="billing_feed_data_advanced.csv"'
-        ' separator="," />'
+        ' password="" server="" />'
     )
     a("        </named-connection>")
     a("      </named-connections>")
@@ -428,7 +428,10 @@ def build_datasource_xml():
         ' name="billing_feed_data_advanced.csv"'
         ' table="[billing_feed_data_advanced#csv]" type="table">'
     )
-    a('        <columns header="yes">')
+    a(
+        '        <columns character-set="UTF-8" header="yes"'
+        ' locale="en_US" separator=",">'
+    )
     for i, (name, dtype, _, _) in enumerate(COLUMNS):
         a(
             '          <column datatype="{}" name="{}"'
