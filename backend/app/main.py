@@ -56,8 +56,14 @@ app.add_middleware(
 )
 
 
+class ConversationEntry(BaseModel):
+    question: str
+    sql: str
+
+
 class AskRequest(BaseModel):
     question: str
+    conversation_history: list[ConversationEntry] = []
 
 
 class AskResponse(BaseModel):
@@ -90,7 +96,11 @@ def ask_question(request: AskRequest):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
-    result = query_engine.ask(request.question)
+    history = [
+        {"question": entry.question, "sql": entry.sql}
+        for entry in request.conversation_history
+    ]
+    result = query_engine.ask(request.question, conversation_history=history)
     return result
 
 

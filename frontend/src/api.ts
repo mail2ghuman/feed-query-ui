@@ -1,12 +1,15 @@
-import { AskResponse, SchemaResponse } from "./types";
+import { AskResponse, ConversationEntry, SchemaResponse } from "./types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-export async function askQuestion(question: string): Promise<AskResponse> {
+export async function askQuestion(
+  question: string,
+  conversationHistory: ConversationEntry[] = [],
+): Promise<AskResponse> {
   const response = await fetch(`${API_URL}/api/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify({ question, conversation_history: conversationHistory }),
   });
   if (!response.ok) {
     const detail = await response.text();
