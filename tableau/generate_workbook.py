@@ -172,6 +172,33 @@ CALCULATED_FIELDS = [
     },
 ]
 
+# Remote type codes for metadata-records
+REMOTE_TYPES = {
+    "integer": 20,
+    "string": 130,
+    "date": 7,
+    "datetime": 135,
+    "real": 5,
+}
+
+# Default aggregation per datatype for metadata-records
+DEFAULT_AGGREGATIONS = {
+    "integer": "Sum",
+    "string": "Count",
+    "date": "Year",
+    "datetime": "Year",
+    "real": "Sum",
+}
+
+# Map our lowercase agg codes to Tableau derivation names
+AGG_TO_DERIVATION = {
+    "none": "None",
+    "sum": "Sum",
+    "avg": "Avg",
+    "cnt": "Count",
+    "": "None",
+}
+
 
 def _esc(text):
     """XML-escape a string."""
@@ -209,6 +236,65 @@ def fqn(field, agg="none"):
                 )
             return "[{}].[{}:{}:{}]".format(DS_NAME, agg, cf["name"], sk)
     return "[{}].[{}:{}:nk]".format(DS_NAME, agg, field)
+
+
+def _collect_used_fields(ws_def):
+    """Collect all unique (field, agg) tuples used in a worksheet."""
+    fields = set()
+    for f, ag in ws_def.get("rows_fields", []):
+        fields.add((f, ag))
+    for f, ag in ws_def.get("cols_fields", []):
+        fields.add((f, ag))
+    for enc_key in ("color", "size", "text"):
+        if enc_key in ws_def.get("encodings", {}):
+            f, ag = ws_def["encodings"][enc_key]
+            fields.add((f, ag))
+    for f, ag in ws_def.get("tooltip_fields", []):
+        fields.add((f, ag))
+    return sorted(fields)
+
+
+def _column_instance_attrs(field, agg):
+    """Return (column, derivation, name, type) for a column-instance element."""
+    derivation = AGG_TO_DERIVATION.get(agg, "None")
+    for cname, dtype, role, kind in COLUMNS:
+        if cname == field:
+            if agg not in ("none", ""):
+                sk = "qk"
+            else:
+                sk = (
+                    "qk"
+                    if role == "measure"
+                    else ("ok" if kind == "ordinal" else "nk")
+                )
+            return (
+                "[{}]".format(field),
+                derivation,
+                "[{}:{}:{}]".format(agg, field, sk),
+                kind,
+            )
+    for cf in CALCULATED_FIELDS:
+        if cf["name"] == field:
+            if agg not in ("none", ""):
+                sk = "qk"
+            else:
+                sk = (
+                    "qk"
+                    if cf["role"] == "measure"
+                    else ("ok" if cf["type"] == "ordinal" else "nk")
+                )
+            return (
+                "[{}]".format(field),
+                derivation,
+                "[{}:{}:{}]".format(agg, field, sk),
+                cf["type"],
+            )
+    return (
+        "[{}]".format(field),
+        derivation,
+        "[{}:{}:nk]".format(agg, field),
+        "nominal",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -309,8 +395,9 @@ WORKSHEETS = [
 def build_datasource_xml():
     """Build the <datasource> element.
 
-    XSD child order for inline datasource:
-        connection -> column* (no metadata-records at datasource level)
+    Uses federated connection pattern (matching real v18.1 workbooks):
+        connection(federated) -> named-connections -> relation -> metadata-records
+    Then: column* for physical and calculated fields.
     """
     lines = []
     a = lines.append
@@ -320,14 +407,25 @@ def build_datasource_xml():
         ' name="{}" version="18.1">'.format(_esc(DS_CAPTION), DS_NAME)
     )
 
-    # -- connection --
+    # -- federated connection --
+    a('    <connection class="federated">')
+    a("      <named-connections>")
     a(
-        '    <connection class="textscan" directory="Data"'
-        ' filename="billing_feed_data_advanced.csv"'
-        ' separator=",">'
+        '        <named-connection caption="billing_feed_data_advanced"'
+        ' name="textscan.0">'
     )
     a(
-        '      <relation name="billing_feed_data_advanced.csv"'
+        '          <connection class="textscan" directory="Data"'
+        ' filename="billing_feed_data_advanced.csv"'
+        ' separator="," />'
+    )
+    a("        </named-connection>")
+    a("      </named-connections>")
+
+    # relation
+    a(
+        '      <relation connection="textscan.0"'
+        ' name="billing_feed_data_advanced.csv"'
         ' table="[billing_feed_data_advanced#csv]" type="table">'
     )
     a('        <columns header="yes">')
@@ -338,6 +436,32 @@ def build_datasource_xml():
         )
     a("        </columns>")
     a("      </relation>")
+
+    # metadata-records (maps physical CSV columns to Tableau fields)
+    a("      <metadata-records>")
+    for i, (name, dtype, role, _) in enumerate(COLUMNS):
+        remote_type = REMOTE_TYPES.get(dtype, 130)
+        default_agg = DEFAULT_AGGREGATIONS.get(dtype, "Count")
+        a('        <metadata-record class="column">')
+        a("          <remote-name>{}</remote-name>".format(name))
+        a("          <remote-type>{}</remote-type>".format(remote_type))
+        a("          <local-name>[{}]</local-name>".format(name))
+        a(
+            "          <parent-name>"
+            "[billing_feed_data_advanced.csv]</parent-name>"
+        )
+        a("          <remote-alias>{}</remote-alias>".format(name))
+        a("          <ordinal>{}</ordinal>".format(i))
+        a("          <local-type>{}</local-type>".format(dtype))
+        a(
+            "          <aggregation>{}</aggregation>".format(
+                default_agg
+            )
+        )
+        a("          <contains-null>true</contains-null>")
+        a("        </metadata-record>")
+    a("      </metadata-records>")
+
     a("    </connection>")
 
     # -- column definitions (physical) --
@@ -345,7 +469,9 @@ def build_datasource_xml():
         cap = CAPTIONS.get(name, name)
         a(
             '    <column caption="{}" datatype="{}" name="[{}]"'
-            ' role="{}" type="{}" />'.format(_esc(cap), dtype, name, role, ctype)
+            ' role="{}" type="{}" />'.format(
+                _esc(cap), dtype, name, role, ctype
+            )
         )
 
     # -- column definitions (calculated) --
@@ -370,10 +496,12 @@ def build_datasource_xml():
     return "\n".join(lines)
 
 
-def build_datasource_deps_xml(indent=8):
+def build_datasource_deps_xml(ws_def, indent=8):
     """Build <datasource-dependencies> declaring columns used by the view.
 
     XSD allows: (column | column-instance | style)*
+    Columns come first, then column-instance elements for fields
+    that are actually used on shelves/encodings/tooltips.
     """
     pad = " " * indent
     lines = []
@@ -403,6 +531,19 @@ def build_datasource_deps_xml(indent=8):
             ' formula="{}" />'.format(pad, _esc(cf["formula"]))
         )
         a("{}  </column>".format(pad))
+
+    # Column instances for fields used in this worksheet
+    used_fields = _collect_used_fields(ws_def)
+    for field, agg in used_fields:
+        col, deriv, inst_name, inst_type = _column_instance_attrs(
+            field, agg
+        )
+        a(
+            '{}  <column-instance column="{}" derivation="{}"'
+            ' name="{}" pivot="key" type="{}" />'.format(
+                pad, col, deriv, inst_name, inst_type
+            )
+        )
 
     a("{}</datasource-dependencies>".format(pad))
     return "\n".join(lines)
@@ -450,7 +591,7 @@ def build_worksheet_xml(ws_def):
         ' name="{}" />'.format(_esc(DS_CAPTION), DS_NAME)
     )
     a("        </datasources>")
-    a(build_datasource_deps_xml(indent=8))
+    a(build_datasource_deps_xml(ws_def, indent=8))
     a('        <aggregation value="true" />')
     a("      </view>")
 
