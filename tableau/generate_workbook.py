@@ -176,7 +176,7 @@ CALCULATED_FIELDS = [
 # Remote type codes for metadata-records
 REMOTE_TYPES = {
     "integer": 20,
-    "string": 130,
+    "string": 129,
     "date": 7,
     "datetime": 135,
     "real": 5,
@@ -455,7 +455,7 @@ def build_datasource_xml():
         a("          <local-name>[{}]</local-name>".format(name))
         a(
             "          <parent-name>"
-            "[billing_feed_data_advanced#csv]</parent-name>"
+            "[billing_feed_data_advanced.csv]</parent-name>"
         )
         a("          <remote-alias>{}</remote-alias>".format(name))
         a("          <ordinal>{}</ordinal>".format(i))
@@ -465,7 +465,12 @@ def build_datasource_xml():
                 default_agg
             )
         )
+        if dtype == "string":
+            a("          <scale>1</scale>")
+            a("          <width>1073741823</width>")
         a("          <contains-null>true</contains-null>")
+        if dtype == "string":
+            a('          <collation flag="0" name="LEN_RGB" />')
         a("        </metadata-record>")
     # capability record (CSV parsing instructions)
     a('        <metadata-record class="capability">')
@@ -473,7 +478,7 @@ def build_datasource_xml():
     a("          <remote-type>0</remote-type>")
     a(
         "          <parent-name>"
-        "[billing_feed_data_advanced#csv]</parent-name>"
+        "[billing_feed_data_advanced.csv]</parent-name>"
     )
     a("          <remote-alias />")
     a("          <aggregation>Count</aggregation>")
@@ -498,6 +503,10 @@ def build_datasource_xml():
     a(
         '            <attribute datatype="string"'
         ' name="locale">"en_US"</attribute>'
+    )
+    a(
+        '            <attribute datatype="string"'
+        ' name="record-delimiter">"\\r"</attribute>'
     )
     a(
         '            <attribute datatype="string"'
@@ -846,8 +855,15 @@ def build_workbook_xml():
         ' xmlns:user="http://www.tableausoftware.com/xml/user">'
     )
 
+    # --- document-format-change-manifest ---
+    a("  <document-format-change-manifest>")
+    a("    <WindowsPersistSimpleIdentifiers />")
+    a("  </document-format-change-manifest>")
+
     # --- preferences ---
     a("  <preferences>")
+    a('    <preference name="ui.encoding.shelf.height" value="24" />')
+    a('    <preference name="ui.shelf.height" value="26" />')
     a('    <color-palette name="Health Status Colors" type="regular">')
     a("      <color>#22b14c</color>")
     a("      <color>#ff7f27</color>")
