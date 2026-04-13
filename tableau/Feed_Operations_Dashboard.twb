@@ -176,8 +176,25 @@
           <aggregation>Count</aggregation>
           <contains-null>true</contains-null>
         </metadata-record>
+        <metadata-record class="capability">
+          <remote-name />
+          <remote-type>0</remote-type>
+          <parent-name>[billing_feed_data_advanced#csv]</parent-name>
+          <remote-alias />
+          <aggregation>Count</aggregation>
+          <contains-null>true</contains-null>
+          <attributes>
+            <attribute datatype="string" name="character-set">"UTF-8"</attribute>
+            <attribute datatype="string" name="collation">"en_US"</attribute>
+            <attribute datatype="string" name="field-delimiter">","</attribute>
+            <attribute datatype="string" name="header-row">"true"</attribute>
+            <attribute datatype="string" name="locale">"en_US"</attribute>
+            <attribute datatype="string" name="single-char">""</attribute>
+          </attributes>
+        </metadata-record>
       </metadata-records>
     </connection>
+    <aliases enabled="yes" />
     <column caption="Feed ID" datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
     <column caption="Billing Date" datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
     <column caption="Source Count" datatype="integer" name="[source_count]" role="measure" type="quantitative" />
@@ -228,6 +245,10 @@ END" />
     <column caption="Feed Health Score" datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
       <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
     </column>
+    <layout dim-ordering="alphabetic" dim-percentage="0.5" measure-ordering="alphabetic" measure-percentage="0.5" show-structure="true" />
+    <semantic-values>
+      <semantic-value key="[Country].[Name]" value="&quot;United States&quot;" />
+    </semantic-values>
   </datasource>
   </datasources>
   <worksheets>
@@ -238,54 +259,11 @@ END" />
           <datasource caption="Billing Feed Data" name="billing_feed_data" />
         </datasources>
         <datasource-dependencies datasource="billing_feed_data">
-          <column datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
-          <column datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[source_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[target_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[file_count]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[ingestion_time]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[update_dt]" role="dimension" type="ordinal" />
-          <column datatype="string" name="[sla_breach]" role="dimension" type="nominal" />
-          <column datatype="integer" name="[version]" role="measure" type="quantitative" />
-          <column datatype="string" name="[version_type]" role="dimension" type="nominal" />
-          <column datatype="string" name="[version_status]" role="dimension" type="nominal" />
-          <column datatype="string" name="[feed_file_prefix]" role="dimension" type="nominal" />
-          <column datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;Failed&quot;
-ELSEIF [processing_delay_min] &gt; 300 THEN &quot;Partial&quot;
-ELSE &quot;Healthy&quot;
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_Country]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="RIGHT([feed_file_prefix], 2)" />
-          </column>
-          <column datatype="integer" name="[Calculation_SourceTargetDiff]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="[source_count] - [target_count]" />
-          </column>
-          <column datatype="real" name="[Calculation_DiscrepancyPct]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="IF [source_count] = 0 THEN 0
-ELSE ABS([source_count] - [target_count]) / [source_count]
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HasRetries]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [version] &gt; 1 THEN &quot;Yes&quot; ELSE &quot;No&quot; END" />
-          </column>
-          <column datatype="string" name="[Calculation_DelayBucket]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [processing_delay_min] &lt;= 60 THEN &quot;0-60 min&quot;
-ELSEIF [processing_delay_min] &lt;= 120 THEN &quot;60-120 min&quot;
-ELSEIF [processing_delay_min] &lt;= 180 THEN &quot;120-180 min&quot;
-ELSEIF [processing_delay_min] &lt;= 300 THEN &quot;180-300 min&quot;
-ELSE &quot;300+ min (Critical)&quot;
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HealthColor]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;red&quot;
-ELSEIF [processing_delay_min] &gt; 300 THEN &quot;amber&quot;
-ELSE &quot;green&quot;
-END" />
-          </column>
-          <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
+          <column caption="Feed ID" datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
+          <column caption="Source Count" datatype="integer" name="[source_count]" role="measure" type="quantitative" />
+          <column caption="Target Count" datatype="integer" name="[target_count]" role="measure" type="quantitative" />
+          <column caption="Processing Delay (min)" datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
+          <column caption="Feed Health Score" datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
           <column-instance column="[Calculation_FeedHealth]" derivation="Avg" name="[avg:Calculation_FeedHealth:qk]" pivot="key" type="quantitative" />
@@ -323,55 +301,19 @@ END" />
           <datasource caption="Billing Feed Data" name="billing_feed_data" />
         </datasources>
         <datasource-dependencies datasource="billing_feed_data">
-          <column datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
-          <column datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[source_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[target_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[file_count]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[ingestion_time]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[update_dt]" role="dimension" type="ordinal" />
-          <column datatype="string" name="[sla_breach]" role="dimension" type="nominal" />
-          <column datatype="integer" name="[version]" role="measure" type="quantitative" />
-          <column datatype="string" name="[version_type]" role="dimension" type="nominal" />
-          <column datatype="string" name="[version_status]" role="dimension" type="nominal" />
-          <column datatype="string" name="[feed_file_prefix]" role="dimension" type="nominal" />
-          <column datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
+          <column caption="Source Count" datatype="integer" name="[source_count]" role="measure" type="quantitative" />
+          <column caption="Target Count" datatype="integer" name="[target_count]" role="measure" type="quantitative" />
+          <column caption="Processing Delay (min)" datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
+          <column caption="SLA Breach" datatype="string" name="[sla_breach]" role="dimension" type="nominal" />
+          <column caption="Feed File Prefix" datatype="string" name="[feed_file_prefix]" role="dimension" type="nominal" />
+          <column caption="Health Status" datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
             <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;Failed&quot;
 ELSEIF [processing_delay_min] &gt; 300 THEN &quot;Partial&quot;
 ELSE &quot;Healthy&quot;
 END" />
           </column>
-          <column datatype="string" name="[Calculation_Country]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="RIGHT([feed_file_prefix], 2)" />
-          </column>
-          <column datatype="integer" name="[Calculation_SourceTargetDiff]" role="measure" type="quantitative">
+          <column caption="Source Target Diff" datatype="integer" name="[Calculation_SourceTargetDiff]" role="measure" type="quantitative">
             <calculation class="tableau" formula="[source_count] - [target_count]" />
-          </column>
-          <column datatype="real" name="[Calculation_DiscrepancyPct]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="IF [source_count] = 0 THEN 0
-ELSE ABS([source_count] - [target_count]) / [source_count]
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HasRetries]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [version] &gt; 1 THEN &quot;Yes&quot; ELSE &quot;No&quot; END" />
-          </column>
-          <column datatype="string" name="[Calculation_DelayBucket]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [processing_delay_min] &lt;= 60 THEN &quot;0-60 min&quot;
-ELSEIF [processing_delay_min] &lt;= 120 THEN &quot;60-120 min&quot;
-ELSEIF [processing_delay_min] &lt;= 180 THEN &quot;120-180 min&quot;
-ELSEIF [processing_delay_min] &lt;= 300 THEN &quot;180-300 min&quot;
-ELSE &quot;300+ min (Critical)&quot;
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HealthColor]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;red&quot;
-ELSEIF [processing_delay_min] &gt; 300 THEN &quot;amber&quot;
-ELSE &quot;green&quot;
-END" />
-          </column>
-          <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
           <column-instance column="[Calculation_HealthStatus]" derivation="None" name="[none:Calculation_HealthStatus:nk]" pivot="key" type="nominal" />
           <column-instance column="[Calculation_SourceTargetDiff]" derivation="Sum" name="[sum:Calculation_SourceTargetDiff:qk]" pivot="key" type="quantitative" />
@@ -412,55 +354,14 @@ END" />
           <datasource caption="Billing Feed Data" name="billing_feed_data" />
         </datasources>
         <datasource-dependencies datasource="billing_feed_data">
-          <column datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
-          <column datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[source_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[target_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[file_count]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[ingestion_time]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[update_dt]" role="dimension" type="ordinal" />
-          <column datatype="string" name="[sla_breach]" role="dimension" type="nominal" />
-          <column datatype="integer" name="[version]" role="measure" type="quantitative" />
-          <column datatype="string" name="[version_type]" role="dimension" type="nominal" />
-          <column datatype="string" name="[version_status]" role="dimension" type="nominal" />
-          <column datatype="string" name="[feed_file_prefix]" role="dimension" type="nominal" />
-          <column datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
+          <column caption="Feed ID" datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
+          <column caption="Billing Date" datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
+          <column caption="Processing Delay (min)" datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
+          <column caption="Health Status" datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
             <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;Failed&quot;
 ELSEIF [processing_delay_min] &gt; 300 THEN &quot;Partial&quot;
 ELSE &quot;Healthy&quot;
 END" />
-          </column>
-          <column datatype="string" name="[Calculation_Country]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="RIGHT([feed_file_prefix], 2)" />
-          </column>
-          <column datatype="integer" name="[Calculation_SourceTargetDiff]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="[source_count] - [target_count]" />
-          </column>
-          <column datatype="real" name="[Calculation_DiscrepancyPct]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="IF [source_count] = 0 THEN 0
-ELSE ABS([source_count] - [target_count]) / [source_count]
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HasRetries]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [version] &gt; 1 THEN &quot;Yes&quot; ELSE &quot;No&quot; END" />
-          </column>
-          <column datatype="string" name="[Calculation_DelayBucket]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [processing_delay_min] &lt;= 60 THEN &quot;0-60 min&quot;
-ELSEIF [processing_delay_min] &lt;= 120 THEN &quot;60-120 min&quot;
-ELSEIF [processing_delay_min] &lt;= 180 THEN &quot;120-180 min&quot;
-ELSEIF [processing_delay_min] &lt;= 300 THEN &quot;180-300 min&quot;
-ELSE &quot;300+ min (Critical)&quot;
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HealthColor]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;red&quot;
-ELSEIF [processing_delay_min] &gt; 300 THEN &quot;amber&quot;
-ELSE &quot;green&quot;
-END" />
-          </column>
-          <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
           <column-instance column="[Calculation_HealthStatus]" derivation="None" name="[none:Calculation_HealthStatus:nk]" pivot="key" type="nominal" />
           <column-instance column="[billing_date]" derivation="None" name="[none:billing_date:ok]" pivot="key" type="ordinal" />
@@ -495,54 +396,20 @@ END" />
           <datasource caption="Billing Feed Data" name="billing_feed_data" />
         </datasources>
         <datasource-dependencies datasource="billing_feed_data">
-          <column datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
-          <column datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[source_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[target_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[file_count]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[ingestion_time]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[update_dt]" role="dimension" type="ordinal" />
-          <column datatype="string" name="[sla_breach]" role="dimension" type="nominal" />
-          <column datatype="integer" name="[version]" role="measure" type="quantitative" />
-          <column datatype="string" name="[version_type]" role="dimension" type="nominal" />
-          <column datatype="string" name="[version_status]" role="dimension" type="nominal" />
-          <column datatype="string" name="[feed_file_prefix]" role="dimension" type="nominal" />
-          <column datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
+          <column caption="Source Count" datatype="integer" name="[source_count]" role="measure" type="quantitative" />
+          <column caption="Processing Delay (min)" datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
+          <column caption="SLA Breach" datatype="string" name="[sla_breach]" role="dimension" type="nominal" />
+          <column caption="Feed File Prefix" datatype="string" name="[feed_file_prefix]" role="dimension" type="nominal" />
+          <column caption="Health Status" datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
             <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;Failed&quot;
 ELSEIF [processing_delay_min] &gt; 300 THEN &quot;Partial&quot;
 ELSE &quot;Healthy&quot;
 END" />
           </column>
-          <column datatype="string" name="[Calculation_Country]" role="dimension" type="nominal">
+          <column caption="Country" datatype="string" name="[Calculation_Country]" role="dimension" type="nominal">
             <calculation class="tableau" formula="RIGHT([feed_file_prefix], 2)" />
           </column>
-          <column datatype="integer" name="[Calculation_SourceTargetDiff]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="[source_count] - [target_count]" />
-          </column>
-          <column datatype="real" name="[Calculation_DiscrepancyPct]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="IF [source_count] = 0 THEN 0
-ELSE ABS([source_count] - [target_count]) / [source_count]
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HasRetries]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [version] &gt; 1 THEN &quot;Yes&quot; ELSE &quot;No&quot; END" />
-          </column>
-          <column datatype="string" name="[Calculation_DelayBucket]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [processing_delay_min] &lt;= 60 THEN &quot;0-60 min&quot;
-ELSEIF [processing_delay_min] &lt;= 120 THEN &quot;60-120 min&quot;
-ELSEIF [processing_delay_min] &lt;= 180 THEN &quot;120-180 min&quot;
-ELSEIF [processing_delay_min] &lt;= 300 THEN &quot;180-300 min&quot;
-ELSE &quot;300+ min (Critical)&quot;
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HealthColor]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;red&quot;
-ELSEIF [processing_delay_min] &gt; 300 THEN &quot;amber&quot;
-ELSE &quot;green&quot;
-END" />
-          </column>
-          <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
+          <column caption="Feed Health Score" datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
             <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
           <column-instance column="[Calculation_Country]" derivation="None" name="[none:Calculation_Country:nk]" pivot="key" type="nominal" />
@@ -584,55 +451,12 @@ END" />
           <datasource caption="Billing Feed Data" name="billing_feed_data" />
         </datasources>
         <datasource-dependencies datasource="billing_feed_data">
-          <column datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
-          <column datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[source_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[target_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[file_count]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[ingestion_time]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[update_dt]" role="dimension" type="ordinal" />
-          <column datatype="string" name="[sla_breach]" role="dimension" type="nominal" />
-          <column datatype="integer" name="[version]" role="measure" type="quantitative" />
-          <column datatype="string" name="[version_type]" role="dimension" type="nominal" />
-          <column datatype="string" name="[version_status]" role="dimension" type="nominal" />
-          <column datatype="string" name="[feed_file_prefix]" role="dimension" type="nominal" />
-          <column datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;Failed&quot;
-ELSEIF [processing_delay_min] &gt; 300 THEN &quot;Partial&quot;
-ELSE &quot;Healthy&quot;
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_Country]" role="dimension" type="nominal">
+          <column caption="Billing Date" datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
+          <column caption="Source Count" datatype="integer" name="[source_count]" role="measure" type="quantitative" />
+          <column caption="Target Count" datatype="integer" name="[target_count]" role="measure" type="quantitative" />
+          <column caption="Processing Delay (min)" datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
+          <column caption="Country" datatype="string" name="[Calculation_Country]" role="dimension" type="nominal">
             <calculation class="tableau" formula="RIGHT([feed_file_prefix], 2)" />
-          </column>
-          <column datatype="integer" name="[Calculation_SourceTargetDiff]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="[source_count] - [target_count]" />
-          </column>
-          <column datatype="real" name="[Calculation_DiscrepancyPct]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="IF [source_count] = 0 THEN 0
-ELSE ABS([source_count] - [target_count]) / [source_count]
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HasRetries]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [version] &gt; 1 THEN &quot;Yes&quot; ELSE &quot;No&quot; END" />
-          </column>
-          <column datatype="string" name="[Calculation_DelayBucket]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [processing_delay_min] &lt;= 60 THEN &quot;0-60 min&quot;
-ELSEIF [processing_delay_min] &lt;= 120 THEN &quot;60-120 min&quot;
-ELSEIF [processing_delay_min] &lt;= 180 THEN &quot;120-180 min&quot;
-ELSEIF [processing_delay_min] &lt;= 300 THEN &quot;180-300 min&quot;
-ELSE &quot;300+ min (Critical)&quot;
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HealthColor]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;red&quot;
-ELSEIF [processing_delay_min] &gt; 300 THEN &quot;amber&quot;
-ELSE &quot;green&quot;
-END" />
-          </column>
-          <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
           <column-instance column="[Calculation_Country]" derivation="None" name="[none:Calculation_Country:nk]" pivot="key" type="nominal" />
           <column-instance column="[billing_date]" derivation="None" name="[none:billing_date:ok]" pivot="key" type="ordinal" />
@@ -670,55 +494,15 @@ END" />
           <datasource caption="Billing Feed Data" name="billing_feed_data" />
         </datasources>
         <datasource-dependencies datasource="billing_feed_data">
-          <column datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
-          <column datatype="date" name="[billing_date]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[source_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[target_count]" role="measure" type="quantitative" />
-          <column datatype="integer" name="[file_count]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[ingestion_time]" role="dimension" type="ordinal" />
-          <column datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
-          <column datatype="datetime" name="[update_dt]" role="dimension" type="ordinal" />
-          <column datatype="string" name="[sla_breach]" role="dimension" type="nominal" />
-          <column datatype="integer" name="[version]" role="measure" type="quantitative" />
-          <column datatype="string" name="[version_type]" role="dimension" type="nominal" />
-          <column datatype="string" name="[version_status]" role="dimension" type="nominal" />
-          <column datatype="string" name="[feed_file_prefix]" role="dimension" type="nominal" />
-          <column datatype="string" name="[Calculation_HealthStatus]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;Failed&quot;
-ELSEIF [processing_delay_min] &gt; 300 THEN &quot;Partial&quot;
-ELSE &quot;Healthy&quot;
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_Country]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="RIGHT([feed_file_prefix], 2)" />
-          </column>
-          <column datatype="integer" name="[Calculation_SourceTargetDiff]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="[source_count] - [target_count]" />
-          </column>
-          <column datatype="real" name="[Calculation_DiscrepancyPct]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="IF [source_count] = 0 THEN 0
-ELSE ABS([source_count] - [target_count]) / [source_count]
-END" />
-          </column>
-          <column datatype="string" name="[Calculation_HasRetries]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [version] &gt; 1 THEN &quot;Yes&quot; ELSE &quot;No&quot; END" />
-          </column>
-          <column datatype="string" name="[Calculation_DelayBucket]" role="dimension" type="nominal">
+          <column caption="Feed ID" datatype="integer" name="[feed_id]" role="dimension" type="nominal" />
+          <column caption="Processing Delay (min)" datatype="integer" name="[processing_delay_min]" role="measure" type="quantitative" />
+          <column caption="Delay Bucket" datatype="string" name="[Calculation_DelayBucket]" role="dimension" type="nominal">
             <calculation class="tableau" formula="IF [processing_delay_min] &lt;= 60 THEN &quot;0-60 min&quot;
 ELSEIF [processing_delay_min] &lt;= 120 THEN &quot;60-120 min&quot;
 ELSEIF [processing_delay_min] &lt;= 180 THEN &quot;120-180 min&quot;
 ELSEIF [processing_delay_min] &lt;= 300 THEN &quot;180-300 min&quot;
 ELSE &quot;300+ min (Critical)&quot;
 END" />
-          </column>
-          <column datatype="string" name="[Calculation_HealthColor]" role="dimension" type="nominal">
-            <calculation class="tableau" formula="IF [sla_breach] = &quot;True&quot; THEN &quot;red&quot;
-ELSEIF [processing_delay_min] &gt; 300 THEN &quot;amber&quot;
-ELSE &quot;green&quot;
-END" />
-          </column>
-          <column datatype="real" name="[Calculation_FeedHealth]" role="measure" type="quantitative">
-            <calculation class="tableau" formula="SUM(IF [sla_breach] = &quot;False&quot; AND [processing_delay_min] &lt;= 300 THEN 1 ELSE 0 END) / COUNT([feed_id]) * 100" />
           </column>
           <column-instance column="[Calculation_DelayBucket]" derivation="None" name="[none:Calculation_DelayBucket:nk]" pivot="key" type="nominal" />
           <column-instance column="[feed_id]" derivation="Count" name="[cnt:feed_id:qk]" pivot="key" type="quantitative" />

@@ -465,9 +465,48 @@ def build_datasource_xml():
         )
         a("          <contains-null>true</contains-null>")
         a("        </metadata-record>")
+    # capability record (CSV parsing instructions)
+    a('        <metadata-record class="capability">')
+    a("          <remote-name />")
+    a("          <remote-type>0</remote-type>")
+    a(
+        "          <parent-name>"
+        "[billing_feed_data_advanced#csv]</parent-name>"
+    )
+    a("          <remote-alias />")
+    a("          <aggregation>Count</aggregation>")
+    a("          <contains-null>true</contains-null>")
+    a("          <attributes>")
+    a(
+        '            <attribute datatype="string"'
+        ' name="character-set">"UTF-8"</attribute>'
+    )
+    a(
+        '            <attribute datatype="string"'
+        ' name="collation">"en_US"</attribute>'
+    )
+    a(
+        '            <attribute datatype="string"'
+        ' name="field-delimiter">","</attribute>'
+    )
+    a(
+        '            <attribute datatype="string"'
+        ' name="header-row">"true"</attribute>'
+    )
+    a(
+        '            <attribute datatype="string"'
+        ' name="locale">"en_US"</attribute>'
+    )
+    a(
+        '            <attribute datatype="string"'
+        ' name="single-char">""</attribute>'
+    )
+    a("          </attributes>")
+    a("        </metadata-record>")
     a("      </metadata-records>")
 
     a("    </connection>")
+    a('    <aliases enabled="yes" />')
 
     # -- column definitions (physical) --
     for name, dtype, role, ctype in COLUMNS:
@@ -497,6 +536,19 @@ def build_datasource_xml():
         )
         a("    </column>")
 
+    a(
+        '    <layout dim-ordering="alphabetic"'
+        ' dim-percentage="0.5"'
+        ' measure-ordering="alphabetic"'
+        ' measure-percentage="0.5"'
+        ' show-structure="true" />'
+    )
+    a("    <semantic-values>")
+    a(
+        '      <semantic-value key="[Country].[Name]"'
+        ' value="&quot;United States&quot;" />'
+    )
+    a("    </semantic-values>")
     a("  </datasource>")
     return "\n".join(lines)
 
@@ -505,8 +557,8 @@ def build_datasource_deps_xml(ws_def, indent=8):
     """Build <datasource-dependencies> declaring columns used by the view.
 
     XSD allows: (column | column-instance | style)*
-    Columns come first, then column-instance elements for fields
-    that are actually used on shelves/encodings/tooltips.
+    Only includes columns and column-instances that are DIRECTLY used
+    on shelves/encodings/tooltips (matching real Tableau workbooks).
     """
     pad = " " * indent
     lines = []
@@ -516,29 +568,42 @@ def build_datasource_deps_xml(ws_def, indent=8):
         '{}<datasource-dependencies datasource="{}">'.format(pad, DS_NAME)
     )
 
-    # Physical columns
-    for name, dtype, role, ctype in COLUMNS:
-        a(
-            '{}  <column datatype="{}" name="[{}]"'
-            ' role="{}" type="{}" />'.format(pad, dtype, name, role, ctype)
-        )
+    # Collect which fields are used in this worksheet
+    used_fields = _collect_used_fields(ws_def)
+    used_field_names = set(f for f, _ in used_fields)
 
-    # Calculated columns
-    for cf in CALCULATED_FIELDS:
-        a(
-            '{}  <column datatype="{}" name="[{}]"'
-            ' role="{}" type="{}">'.format(
-                pad, cf["datatype"], cf["name"], cf["role"], cf["type"]
+    # Only emit column definitions for fields actually used
+    for name, dtype, role, ctype in COLUMNS:
+        if name in used_field_names:
+            cap = CAPTIONS.get(name, name)
+            a(
+                '{}  <column caption="{}" datatype="{}" name="[{}]"'
+                ' role="{}" type="{}" />'.format(
+                    pad, _esc(cap), dtype, name, role, ctype
+                )
             )
-        )
-        a(
-            '{}    <calculation class="tableau"'
-            ' formula="{}" />'.format(pad, _esc(cf["formula"]))
-        )
-        a("{}  </column>".format(pad))
+
+    # Only emit calculated columns that are used
+    for cf in CALCULATED_FIELDS:
+        if cf["name"] in used_field_names:
+            a(
+                '{}  <column caption="{}" datatype="{}" name="[{}]"'
+                ' role="{}" type="{}">'.format(
+                    pad,
+                    _esc(cf["caption"]),
+                    cf["datatype"],
+                    cf["name"],
+                    cf["role"],
+                    cf["type"],
+                )
+            )
+            a(
+                '{}    <calculation class="tableau"'
+                ' formula="{}" />'.format(pad, _esc(cf["formula"]))
+            )
+            a("{}  </column>".format(pad))
 
     # Column instances for fields used in this worksheet
-    used_fields = _collect_used_fields(ws_def)
     for field, agg in used_fields:
         col, deriv, inst_name, inst_type = _column_instance_attrs(
             field, agg
