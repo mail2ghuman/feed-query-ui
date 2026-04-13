@@ -30,8 +30,9 @@ OUTPUT_DIR = SCRIPT_DIR
 TWB_FILENAME = "Feed_Operations_Dashboard.twb"
 TWBX_FILENAME = "Feed_Operations_Dashboard.twbx"
 
-DS_NAME = "billing_feed_data"
+DS_NAME = "federated.0hbp5r01ex34vu1fmhfhn1drsq7j"
 DS_CAPTION = "Billing Feed Data"
+CONN_NAME = "textscan.0hbp5r01ex34vu1fmhfhn1drsq7j"
 
 
 def uid():
@@ -414,7 +415,7 @@ def build_datasource_xml():
     a("      <named-connections>")
     a(
         '        <named-connection caption="billing_feed_data_advanced"'
-        ' name="textscan.0">'
+        ' name="{}">' .format(CONN_NAME)
     )
     a(
         '          <connection class="textscan" directory="Data"'
@@ -426,9 +427,10 @@ def build_datasource_xml():
 
     # relation
     a(
-        '      <relation connection="textscan.0"'
+        '      <relation connection="{}"'
         ' name="billing_feed_data_advanced.csv"'
-        ' table="[billing_feed_data_advanced#csv]" type="table">'
+        ' table="[billing_feed_data_advanced#csv]"'
+        ' type="table">'.format(CONN_NAME)
     )
     a(
         '        <columns character-set="UTF-8" header="yes"'
