@@ -447,7 +447,7 @@ def build_datasource_xml():
     # metadata-records (maps physical CSV columns to Tableau fields)
     a("      <metadata-records>")
     for i, (name, dtype, role, _) in enumerate(COLUMNS):
-        remote_type = REMOTE_TYPES.get(dtype, 130)
+        remote_type = REMOTE_TYPES.get(dtype, 129)
         default_agg = DEFAULT_AGGREGATIONS.get(dtype, "Count")
         a('        <metadata-record class="column">')
         a("          <remote-name>{}</remote-name>".format(name))
